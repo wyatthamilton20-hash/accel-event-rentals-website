@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { fetchGoogleReviews } from "@/lib/google-reviews";
 import { ReviewsCarousel } from "@/components/ReviewsCarousel";
 
@@ -12,28 +13,13 @@ export async function WelcomeSection() {
       >
         {/* Logo mark */}
         <div className="shrink-0">
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              letterSpacing: "-0.02em",
-              color: "#111",
-              lineHeight: 1,
-            }}
-          >
-            ACCEL
-          </div>
-          <div
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase" as const,
-              color: "#6b6b6b",
-              marginTop: 1,
-            }}
-          >
-            Event Rentals &middot; Hawaii
-          </div>
+          <Image
+            src="/images/logos/accel-logo.png"
+            alt="Accel Event Rentals"
+            width={130}
+            height={40}
+            style={{ filter: "invert(1)", height: 40, width: "auto" }}
+          />
         </div>
 
         {/* Text */}

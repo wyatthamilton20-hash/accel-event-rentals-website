@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { getCategoryByLabel } from "@/lib/category-map";
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -11,97 +13,30 @@ import {
   MenuIcon,
   CloseIcon,
 } from "@/components/icons";
+import { useCart } from "@/lib/cart-context";
 
-interface DropdownItem {
-  label: string;
-  image: string;
+interface CatalogProduct {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  thumbUrl: string | null;
 }
 
-interface NavItem {
+interface NavCategory {
   label: string;
-  hasDropdown: boolean;
-  dropdown?: DropdownItem[];
+  products: CatalogProduct[];
 }
 
-const categoryLinks: NavItem[] = [
-  {
-    label: "Tents",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Sailcloth Tents", image: "/images/hero/1.jpg" },
-      { label: "Frame Tents", image: "/images/hero/2.jpg" },
-      { label: "Pole Tents", image: "/images/hero/3.jpg" },
-      { label: "Clear Top Tents", image: "/images/hero/4.jpg" },
-      { label: "Canopies", image: "/images/hero/5.jpg" },
-    ],
-  },
-  {
-    label: "Furnishings",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Chairs", image: "/images/products/flora-bella.jpg" },
-      { label: "Dining Tables", image: "/images/products/aria-stainless.jpg" },
-      { label: "Cocktail Tables", image: "/images/products/birch-honey.jpg" },
-      { label: "Sofas & Lounges", image: "/images/products/tivoli-chair.jpg" },
-      { label: "Bars & Back Bars", image: "/images/products/tribeca-bar.jpg" },
-      { label: "Bar Stools", image: "/images/products/vero-chair.jpg" },
-      { label: "Outdoor Furniture", image: "/images/products/palermo-highboy.jpg" },
-    ],
-  },
-  {
-    label: "Tabletop",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Dinnerware", image: "/images/products/flora-bella.jpg" },
-      { label: "Chargers", image: "/images/products/birch-honey.jpg" },
-      { label: "Flatware", image: "/images/products/aria-stainless.jpg" },
-      { label: "Glassware", image: "/images/products/napoli-glassware.jpg" },
-      { label: "Linens", image: "/images/products/product-11.jpg" },
-      { label: "Tabletop Accessories", image: "/images/products/product-12.jpg" },
-    ],
-  },
-  {
-    label: "Catering",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Cooking Equipment", image: "/images/products/palermo-highboy.jpg" },
-      { label: "Serving Pieces", image: "/images/products/milo-bar.jpg" },
-      { label: "Buffetware", image: "/images/products/product-10.jpg" },
-      { label: "Beverage Service", image: "/images/products/napoli-glassware.jpg" },
-    ],
-  },
-  {
-    label: "Decor",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Greenery & Florals", image: "/images/hero/6.jpg" },
-      { label: "Pipe & Drape", image: "/images/hero/7.jpg" },
-      { label: "Chandeliers & Lighting", image: "/images/hero/8.jpg" },
-      { label: "Props", image: "/images/products/product-12.jpg" },
-      { label: "Cabanas", image: "/images/hero/5.jpg" },
-    ],
-  },
-  {
-    label: "More for Your Event",
-    hasDropdown: true,
-    dropdown: [
-      { label: "Dance Floors", image: "/images/hero/3.jpg" },
-      { label: "Staging", image: "/images/hero/1.jpg" },
-      { label: "Fans & Cooling", image: "/images/hero/4.jpg" },
-      { label: "Electrical & PA", image: "/images/hero/7.jpg" },
-      { label: "Miscellaneous", image: "/images/hero/2.jpg" },
-    ],
-  },
-  { label: "What's New", hasDropdown: false },
-  { label: "Gallery", hasDropdown: false },
-];
+const STATIC_LINKS = ["What's New", "Gallery", "About Us", "Contact"] as const;
 
 export function Header() {
+  const { totalItems, setCartOpen } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [categories, setCategories] = useState<NavCategory[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -109,6 +44,23 @@ export function Header() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Fetch live catalog from Current RMS
+  useEffect(() => {
+    fetch("/api/catalog")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.categories) {
+          setCategories(
+            data.categories.map((c: { label: string; products: CatalogProduct[] }) => ({
+              label: c.label,
+              products: c.products,
+            }))
+          );
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -127,13 +79,11 @@ export function Header() {
     setOpenDropdown(null);
   }, [scrolled]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activeDropdown = categoryLinks.find(
-    (l) => l.label === openDropdown && l.dropdown
-  );
+  // activeDropdown no longer needed — "Rentals" shows all categories
 
   return (
     <>
-      {openDropdown && activeDropdown && (
+      {openDropdown === "Rentals" && categories.length > 0 && (
         <div
           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
           onClick={() => setOpenDropdown(null)}
@@ -152,7 +102,7 @@ export function Header() {
             borderRadius: scrolled ? 60 : 119,
             boxShadow: scrolled
               ? "0 2px 12px rgba(0,0,0,0.15)"
-              : "0 0 5px #9f9f9f",
+              : "0 2px 8px rgba(0,0,0,0.10)",
             maxWidth: scrolled ? 620 : 1400,
           }}
         >
@@ -165,23 +115,16 @@ export function Header() {
             }}
           >
             {/* Logo */}
-            <a href="/" className="shrink-0 leading-none">
-              <span
-                className="font-bold tracking-[-0.02em] text-[#111] transition-[font-size] duration-500 ease-in-out"
-                style={{ fontSize: scrolled ? 17 : 22 }}
-              >
-                ACCEL
-              </span>
-              <span
-                className="block font-normal uppercase text-[#6b6b6b] transition-[font-size,margin,opacity] duration-500 ease-in-out"
-                style={{
-                  fontSize: scrolled ? 7 : 9,
-                  letterSpacing: "0.15em",
-                  marginTop: scrolled ? 0 : -2,
-                }}
-              >
-                Event Rentals
-              </span>
+            <a href="/" className="shrink-0 leading-none transition-[height] duration-500 ease-in-out" style={{ height: scrolled ? 28 : 40 }}>
+              <Image
+                src="/images/logos/accel-logo.png"
+                alt="Accel Event Rentals"
+                width={scrolled ? 90 : 130}
+                height={scrolled ? 28 : 40}
+                className="transition-all duration-500 ease-in-out"
+                style={{ filter: "invert(1)", height: scrolled ? 28 : 40, width: "auto" }}
+                priority
+              />
             </a>
 
             {/* Search Bar — fades out with opacity + scale, no layout shift */}
@@ -273,10 +216,16 @@ export function Header() {
               </button>
               <button
                 type="button"
-                className="cursor-pointer text-[#111] transition-opacity hover:opacity-70"
+                className="relative cursor-pointer text-[#111] transition-opacity hover:opacity-70"
                 aria-label="Cart"
+                onClick={() => setCartOpen(true)}
               >
                 <CartIcon className="size-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#111] text-white text-[9px] font-bold">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
               </button>
 
               {/* Hamburger — fades in on scroll */}
@@ -349,28 +298,31 @@ export function Header() {
             }}
           >
             <div className="overflow-hidden">
-              <div className="flex items-center justify-between border-t border-[#eee] px-8 py-2.5">
+              <div className="flex items-center justify-between px-8 py-2.5">
                 <nav className="flex items-center gap-5 lg:gap-6">
-                  {categoryLinks.map((link) => (
-                    <button
-                      key={link.label}
-                      type="button"
-                      className={`flex cursor-pointer items-center gap-1 whitespace-nowrap text-sm font-extrabold transition-opacity hover:opacity-70 ${
-                        openDropdown === link.label ? "text-[#666]" : "text-[#111]"
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (link.hasDropdown) {
-                          setOpenDropdown(
-                            openDropdown === link.label ? null : link.label
-                          );
-                        }
-                      }}
+                  <button
+                    type="button"
+                    className={`flex cursor-pointer items-center gap-1 whitespace-nowrap text-sm font-extrabold transition-opacity hover:opacity-70 ${
+                      openDropdown === "Rentals" ? "text-[#666]" : "text-[#111]"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenDropdown(openDropdown === "Rentals" ? null : "Rentals");
+                    }}
+                    tabIndex={scrolled ? -1 : 0}
+                  >
+                    Rentals
+                    <ChevronDownIcon className="size-3" />
+                  </button>
+                  {STATIC_LINKS.map((label) => (
+                    <a
+                      key={label}
+                      href="#"
+                      className="whitespace-nowrap text-sm font-extrabold text-[#111] transition-opacity hover:opacity-70"
                       tabIndex={scrolled ? -1 : 0}
                     >
-                      {link.label}
-                      {link.hasDropdown && <ChevronDownIcon className="size-3" />}
-                    </button>
+                      {label}
+                    </a>
                   ))}
                 </nav>
                 <a
@@ -385,43 +337,56 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mega menu panel */}
-        {openDropdown && activeDropdown?.dropdown && (
+        {/* Mega menu panel — shows all rental categories */}
+        {openDropdown === "Rentals" && categories.length > 0 && (
           <div
             className="mx-auto mt-3 overflow-hidden bg-white"
             style={{
               borderRadius: 24,
-              boxShadow: "0 0 5px #9f9f9f",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
             }}
           >
-            {/* Title */}
             <div className="pt-8 pb-4 text-center text-sm font-bold uppercase tracking-[0.15em] text-[#111]">
-              {activeDropdown.label}
+              Rentals
             </div>
-
-            {/* Items grid — contained, no overflow */}
             <div className="px-8 pb-10">
-              <div className="mx-auto grid max-w-[1100px] gap-6" style={{ gridTemplateColumns: `repeat(${Math.min(activeDropdown.dropdown.length, 7)}, 1fr)` }}>
-                {activeDropdown.dropdown.map((item) => (
-                  <a
-                    key={item.label}
-                    href="#"
-                    className="flex flex-col items-center gap-3 rounded-xl p-3 transition-all hover:bg-[#f5f5f5]"
-                  >
-                    <div className="relative h-[120px] w-[120px] overflow-hidden rounded-full border-2 border-[#eee]">
-                      <Image
-                        src={item.image}
-                        alt={item.label}
-                        fill
-                        sizes="120px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <span className="text-center text-[13px] font-medium leading-snug text-[#333]">
-                      {item.label}
-                    </span>
-                  </a>
-                ))}
+              <div className="mx-auto grid max-w-[1100px] gap-6" style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 5)}, 1fr)` }}>
+                {categories.map((cat) => {
+                  const firstWithImage = cat.products.find((p) => p.imageUrl);
+                  const catDef = getCategoryByLabel(cat.label);
+                  const href = catDef ? `/rentals/${catDef.slug}` : "#";
+                  return (
+                    <Link
+                      key={cat.label}
+                      href={href}
+                      className="flex flex-col items-center gap-3 rounded-xl p-3 transition-all hover:bg-[#f5f5f5] no-underline"
+                      onClick={() => setOpenDropdown(null)}
+                    >
+                      <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full border-2 border-[#eee] bg-[#f5f5f5]">
+                        {firstWithImage?.imageUrl ? (
+                          <Image
+                            src={firstWithImage.imageUrl}
+                            alt={cat.label}
+                            fill
+                            sizes="100px"
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center text-[11px] text-[#aaa] font-medium">
+                            {cat.label}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-center text-[13px] font-semibold leading-snug text-[#333]">
+                        {cat.label}
+                      </span>
+                      <span className="text-[11px] text-[#999]">
+                        {cat.products.length} items
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -431,7 +396,7 @@ export function Header() {
         {mobileMenuOpen && (
           <div
             className="mt-2 rounded-3xl bg-white p-6 md:hidden"
-            style={{ boxShadow: "0 0 5px #9f9f9f" }}
+            style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
           >
             <div className="mb-4 flex overflow-hidden rounded-full border border-[#cccccc]">
               <input
@@ -448,35 +413,33 @@ export function Header() {
               </button>
             </div>
             <nav className="flex flex-col gap-1 max-h-[50vh] overflow-y-auto">
-              {categoryLinks.map((link) => (
-                <div key={link.label}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between py-2.5 text-sm font-extrabold text-[#111]"
-                    onClick={() => {
-                      if (link.hasDropdown) {
-                        setMobileDropdown(mobileDropdown === link.label ? null : link.label);
-                      }
-                    }}
-                  >
-                    {link.label}
-                    {link.hasDropdown && (
-                      <ChevronDownIcon
-                        className="size-4 transition-transform duration-200"
-                        style={{ transform: mobileDropdown === link.label ? "rotate(180deg)" : "rotate(0)" }}
-                      />
-                    )}
-                  </button>
-                  {link.hasDropdown && link.dropdown && mobileDropdown === link.label && (
-                    <div className="ml-3 mb-2 flex flex-col gap-1 border-l-2 border-[#eee] pl-3">
-                      {link.dropdown.map((item) => (
-                        <a key={item.label} href="#" className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]">
-                          {item.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              {/* Rentals with expandable categories */}
+              <div>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between py-2.5 text-sm font-extrabold text-[#111]"
+                  onClick={() => setMobileDropdown(mobileDropdown === "Rentals" ? null : "Rentals")}
+                >
+                  Rentals
+                  <ChevronDownIcon
+                    className="size-4 transition-transform duration-200"
+                    style={{ transform: mobileDropdown === "Rentals" ? "rotate(180deg)" : "rotate(0)" }}
+                  />
+                </button>
+                {mobileDropdown === "Rentals" && (
+                  <div className="ml-3 mb-2 flex flex-col gap-1 border-l-2 border-[#eee] pl-3">
+                    {categories.map((cat) => (
+                      <a key={cat.label} href="#" className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]">
+                        {cat.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {STATIC_LINKS.map((label) => (
+                <a key={label} href="#" className="py-2.5 text-sm font-extrabold text-[#111]">
+                  {label}
+                </a>
               ))}
             </nav>
             <div className="mt-4 flex flex-col gap-3 border-t border-[#eee] pt-4">

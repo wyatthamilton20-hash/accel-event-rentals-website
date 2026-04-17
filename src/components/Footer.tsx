@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
 
 const footerColumns = {
@@ -195,7 +196,7 @@ export function Footer() {
         }}
       >
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "24px", marginBottom: "12px" }}>
-          <span style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.02em", color: "#111" }}>ACCEL</span>
+          <Image src="/images/logos/accel-logo.png" alt="Accel Event Rentals" width={110} height={34} style={{ filter: "invert(1)", height: 34, width: "auto" }} />
         </div>
         <p
           style={{
