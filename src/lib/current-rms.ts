@@ -138,7 +138,7 @@ export async function getProducts(options?: {
   const meta = data.meta as CurrentRMSResponse<CurrentRMSProduct>["meta"];
 
   const products: Product[] = raw
-    .filter((p) => !p.tag_list.includes("noshow"))
+    .filter((p) => !p.tag_list.includes("noshow") && !p.name.toLowerCase().includes("losberger"))
     .map((p) => ({
       id: p.id,
       name: p.name,
