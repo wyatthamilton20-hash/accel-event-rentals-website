@@ -5,9 +5,30 @@
  * operations are permitted. This is enforced at the function level.
  */
 
+import manifest from "./product-images-manifest.json";
+
 const SUBDOMAIN = process.env.CURRENT_RMS_SUBDOMAIN;
 const API_KEY = process.env.CURRENT_RMS_API_KEY;
 const BASE_URL = "https://api.current-rms.com/api/v1";
+
+// Built by scripts/download-product-images.mjs — maps product id to a local
+// static path. Current RMS serves icons via AWS S3 pre-signed URLs that expire
+// after a few hours, so we mirror them and reference the mirrored copy.
+const LOCAL_IMAGES = manifest as Record<
+  string,
+  { imageUrl: string; thumbUrl: string | null }
+>;
+
+function resolveImages(p: CurrentRMSProduct): {
+  imageUrl: string | null;
+  thumbUrl: string | null;
+} {
+  const local = LOCAL_IMAGES[String(p.id)];
+  return {
+    imageUrl: local?.imageUrl ?? p.icon?.url ?? null,
+    thumbUrl: local?.thumbUrl ?? p.icon?.thumb_url ?? null,
+  };
+}
 
 interface CurrentRMSIcon {
   url: string;
@@ -146,8 +167,7 @@ export async function getProducts(options?: {
       category: p.product_group?.name || "Uncategorized",
       categoryId: p.product_group_id,
       price: `$${parseFloat(p.rental_rate?.price || "0").toFixed(0)}`,
-      imageUrl: p.icon?.url || null,
-      thumbUrl: p.icon?.thumb_url || null,
+      ...resolveImages(p),
     }));
 
   return { products, totalCount: meta.total_row_count };
@@ -179,8 +199,7 @@ export async function getProductById(id: number): Promise<Product | null> {
       category: p.product_group?.name || "Uncategorized",
       categoryId: p.product_group_id,
       price: `$${parseFloat(p.rental_rate?.price || "0").toFixed(0)}`,
-      imageUrl: p.icon?.url || null,
-      thumbUrl: p.icon?.thumb_url || null,
+      ...resolveImages(p),
     };
   } catch {
     return null;
