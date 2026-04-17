@@ -34,14 +34,19 @@ export default async function CategoryPage({
   if (!cat) notFound();
 
   // Fetch all products for this category's group IDs
-  const productSets = await Promise.all(
-    cat.groupIds.map((gid) =>
-      getProducts({ groupId: gid, perPage: 50, activeOnly: true }).then(
-        (r) => r.products
+  let products: Awaited<ReturnType<typeof getProducts>>["products"] = [];
+  try {
+    const productSets = await Promise.all(
+      cat.groupIds.map((gid) =>
+        getProducts({ groupId: gid, perPage: 50, activeOnly: true }).then(
+          (r) => r.products
+        )
       )
-    )
-  );
-  const products = productSets.flat();
+    );
+    products = productSets.flat();
+  } catch {
+    // API unavailable during build — page renders with empty products
+  }
 
   return (
     <main className="min-h-screen bg-[#f7f7f7]">

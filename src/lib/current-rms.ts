@@ -53,7 +53,8 @@ async function fetchCRMS<T>(
   revalidate: number = 86400 // Default: 24 hours for product data
 ): Promise<T> {
   if (!SUBDOMAIN || !API_KEY) {
-    throw new Error("Current RMS credentials not configured");
+    console.warn("Current RMS credentials not configured — returning empty data");
+    return {} as T;
   }
 
   const url = new URL(`${BASE_URL}/${endpoint}`);
