@@ -11,6 +11,36 @@ const SUBDOMAIN = process.env.CURRENT_RMS_SUBDOMAIN;
 const API_KEY = process.env.CURRENT_RMS_API_KEY;
 const BASE_URL = "https://api.current-rms.com/api/v1";
 
+/**
+ * Server-only auth'd GET against the Current RMS REST API. Returns the parsed
+ * response envelope or `null` if credentials aren't configured (so callers can
+ * render an empty state during local dev / preview builds without blowing up).
+ * Throws on non-2xx responses from the upstream API.
+ */
+export async function crmsGet(
+  endpoint: string,
+  params: Record<string, string> = {},
+  init: { revalidate?: number; cache?: RequestCache } = {}
+): Promise<Response | null> {
+  if (!SUBDOMAIN || !API_KEY) return null;
+  const url = new URL(`${BASE_URL}/${endpoint}`);
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "X-SUBDOMAIN": SUBDOMAIN,
+      "X-AUTH-TOKEN": API_KEY,
+      "Content-Type": "application/json",
+    },
+    ...(init.cache
+      ? { cache: init.cache }
+      : { next: { revalidate: init.revalidate ?? 86400 } }),
+  });
+
+  return res;
+}
+
 // Built by scripts/download-product-images.mjs — maps product id to a local
 // static path. Current RMS serves icons via AWS S3 pre-signed URLs that expire
 // after a few hours, so we mirror them and reference the mirrored copy.
@@ -67,36 +97,20 @@ interface CurrentRMSResponse<T> {
   [key: string]: T[] | CurrentRMSResponse<T>["meta"];
 }
 
-// --- READ ONLY fetch wrapper ---
+// --- READ ONLY fetch wrapper (thin helper over crmsGet for JSON reads) ---
 async function fetchCRMS<T>(
   endpoint: string,
   params: Record<string, string> = {},
   revalidate: number = 86400 // Default: 24 hours for product data
 ): Promise<T> {
-  if (!SUBDOMAIN || !API_KEY) {
+  const res = await crmsGet(endpoint, params, { revalidate });
+  if (!res) {
     console.warn("Current RMS credentials not configured — returning empty data");
     return {} as T;
   }
-
-  const url = new URL(`${BASE_URL}/${endpoint}`);
-  for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, value);
-  }
-
-  const res = await fetch(url.toString(), {
-    method: "GET", // READ ONLY — never anything else
-    headers: {
-      "X-SUBDOMAIN": SUBDOMAIN,
-      "X-AUTH-TOKEN": API_KEY,
-      "Content-Type": "application/json",
-    },
-    next: { revalidate },
-  });
-
   if (!res.ok) {
     throw new Error(`Current RMS API error: ${res.status} ${res.statusText}`);
   }
-
   return res.json();
 }
 

@@ -1,12 +1,13 @@
 "use client";
 
 import { ArrowRightIcon, FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
+import { SITE } from "@/lib/site-config";
 
 const socialLinks = [
-  { icon: FacebookIcon, href: "#", label: "Facebook" },
-  { icon: InstagramIcon, href: "#", label: "Instagram" },
-  { icon: YoutubeIcon, href: "#", label: "YouTube" },
-  { icon: PinterestIcon, href: "#", label: "Pinterest" },
+  { icon: FacebookIcon, href: SITE.social.facebook, label: "Facebook" },
+  { icon: InstagramIcon, href: SITE.social.instagram, label: "Instagram" },
+  { icon: YoutubeIcon, href: SITE.social.youtube, label: "YouTube" },
+  { icon: PinterestIcon, href: SITE.social.pinterest, label: "Pinterest" },
 ] as const;
 
 const feedImages = Array.from({ length: 8 }, (_, i) => ({
@@ -34,22 +35,29 @@ export function SocialSection() {
 
       {/* Social Icons */}
       <div className="flex justify-center items-center gap-3 my-8">
-        {socialLinks.map(({ icon: Icon, href, label }) => (
-          <a
-            key={label}
-            href={href}
-            aria-label={label}
-            className="inline-flex items-center justify-center w-12 h-12 rounded-full text-[#111] transition-colors hover:border-[#111]"
-            style={{ border: "1.5px solid #d0d0d0" }}
-          >
-            <Icon className="h-[18px] w-[18px]" />
-          </a>
-        ))}
+        {socialLinks.map(({ icon: Icon, href, label }) => {
+          const external = /^https?:/.test(href);
+          return (
+            <a
+              key={label}
+              href={href}
+              aria-label={label}
+              {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full text-[#111] transition-colors hover:border-[#111]"
+              style={{ border: "1.5px solid #d0d0d0" }}
+            >
+              <Icon className="h-[18px] w-[18px]" />
+            </a>
+          );
+        })}
       </div>
 
       {/* Follow Us button */}
       <a
-        href="#"
+        href={SITE.social.instagram}
+        {...(/^https?:/.test(SITE.social.instagram)
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
         className="inline-flex items-center gap-2.5 bg-[#111] text-white px-9 py-[18px] text-[15px] font-bold no-underline transition-colors hover:bg-[#333]"
         style={{ borderRadius: 37, letterSpacing: "-0.01em" }}
       >

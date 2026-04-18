@@ -70,7 +70,7 @@ export function FeaturedEventsSection() {
 
         {/* CTA Button — white pill with arrow */}
         <a
-          href="#"
+          href="/gallery"
           style={{
             display: "inline-flex",
             alignItems: "center",

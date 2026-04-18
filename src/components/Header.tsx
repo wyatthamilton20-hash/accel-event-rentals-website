@@ -14,6 +14,7 @@ import {
   CloseIcon,
 } from "@/components/icons";
 import { useCart } from "@/lib/cart-context";
+import { SITE } from "@/lib/site-config";
 
 interface CatalogProduct {
   id: number;
@@ -27,7 +28,11 @@ interface NavCategory {
   products: CatalogProduct[];
 }
 
-const STATIC_LINKS = ["What's New", "Gallery", "About Us", "Contact"] as const;
+const STATIC_LINKS: { label: string; href: string }[] = [
+  { label: "Gallery", href: "/gallery" },
+  { label: "About Us", href: "/about" },
+  { label: "Contact", href: "/contact" },
+];
 
 export function Header() {
   const { totalItems, setCartOpen } = useCart();
@@ -40,7 +45,13 @@ export function Header() {
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => {
+      setScrolled((was) => {
+        const now = window.scrollY > 60;
+        if (was !== now) setOpenDropdown(null);
+        return now;
+      });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -73,13 +84,6 @@ export function Header() {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, [openDropdown]);
-
-  useEffect(() => {
-    if (!openDropdown) return;
-    setOpenDropdown(null);
-  }, [scrolled]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // activeDropdown no longer needed — "Rentals" shows all categories
 
   return (
     <>
@@ -115,7 +119,7 @@ export function Header() {
             }}
           >
             {/* Logo */}
-            <a href="/" className="shrink-0 leading-none transition-[height] duration-500 ease-in-out" style={{ height: scrolled ? 28 : 40 }}>
+            <Link href="/" className="shrink-0 leading-none transition-[height] duration-500 ease-in-out" style={{ height: scrolled ? 28 : 40 }}>
               <Image
                 src="/images/logos/accel-logo.png"
                 alt="Accel Event Rentals"
@@ -125,7 +129,7 @@ export function Header() {
                 style={{ filter: "invert(1)", height: scrolled ? 28 : 40, width: "auto" }}
                 priority
               />
-            </a>
+            </Link>
 
             {/* Search Bar — fades out with opacity + scale, no layout shift */}
             <div
@@ -185,7 +189,7 @@ export function Header() {
                   <ChevronDownIcon className="size-3" />
                 </a>
                 <a
-                  href="/locations"
+                  href="/contact"
                   className="flex cursor-pointer items-center gap-1 text-sm font-semibold text-[#111] transition-opacity hover:opacity-70 whitespace-nowrap"
                 >
                   <LocationIcon className="size-4" />
@@ -314,23 +318,23 @@ export function Header() {
                     Rentals
                     <ChevronDownIcon className="size-3" />
                   </button>
-                  {STATIC_LINKS.map((label) => (
+                  {STATIC_LINKS.map((link) => (
                     <a
-                      key={label}
-                      href="#"
+                      key={link.label}
+                      href={link.href}
                       className="whitespace-nowrap text-sm font-extrabold text-[#111] transition-opacity hover:opacity-70"
                       tabIndex={scrolled ? -1 : 0}
                     >
-                      {label}
+                      {link.label}
                     </a>
                   ))}
                 </nav>
                 <a
-                  href="tel:18085551234"
+                  href={`tel:${SITE.phone.replace(/\D/g, "")}`}
                   className="shrink-0 whitespace-nowrap text-sm font-semibold text-[#111] transition-opacity hover:opacity-70"
                   tabIndex={scrolled ? -1 : 0}
                 >
-                  Call Us: (808) 555-1234
+                  Call Us: {SITE.phone}
                 </a>
               </div>
             </div>
@@ -428,17 +432,25 @@ export function Header() {
                 </button>
                 {mobileDropdown === "Rentals" && (
                   <div className="ml-3 mb-2 flex flex-col gap-1 border-l-2 border-[#eee] pl-3">
-                    {categories.map((cat) => (
-                      <a key={cat.label} href="#" className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]">
-                        {cat.label}
-                      </a>
-                    ))}
+                    {categories.map((cat) => {
+                      const catDef = getCategoryByLabel(cat.label);
+                      const href = catDef ? `/rentals/${catDef.slug}` : "#";
+                      return (
+                        <a
+                          key={cat.label}
+                          href={href}
+                          className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]"
+                        >
+                          {cat.label}
+                        </a>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-              {STATIC_LINKS.map((label) => (
-                <a key={label} href="#" className="py-2.5 text-sm font-extrabold text-[#111]">
-                  {label}
+              {STATIC_LINKS.map((link) => (
+                <a key={link.label} href={link.href} className="py-2.5 text-sm font-extrabold text-[#111]">
+                  {link.label}
                 </a>
               ))}
             </nav>
@@ -454,25 +466,35 @@ export function Header() {
                 <ChevronDownIcon className="size-3" />
               </a>
               <a
-                href="/locations"
+                href="/contact"
                 className="flex items-center gap-1 text-sm font-semibold text-[#111]"
               >
                 <LocationIcon className="size-4" />
                 Oahu
               </a>
               <a
-                href="tel:18085551234"
+                href={`tel:${SITE.phone.replace(/\D/g, "")}`}
                 className="text-sm font-semibold text-[#111]"
               >
-                Call Us: (808) 555-1234
+                Call Us: {SITE.phone}
               </a>
             </div>
             <div className="mt-4 flex items-center gap-4 border-t border-[#eee] pt-4">
-              <button type="button" className="text-[#111]" aria-label="Account">
-                <UserIcon className="size-5" />
-              </button>
-              <button type="button" className="text-[#111]" aria-label="Cart">
+              <button
+                type="button"
+                className="relative text-[#111]"
+                aria-label="Cart"
+                onClick={() => {
+                  setCartOpen(true);
+                  setMobileMenuOpen(false);
+                }}
+              >
                 <CartIcon className="size-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#111] text-white text-[9px] font-bold">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </span>
+                )}
               </button>
             </div>
           </div>

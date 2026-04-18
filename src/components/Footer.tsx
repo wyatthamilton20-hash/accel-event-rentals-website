@@ -1,42 +1,36 @@
 import Image from "next/image";
 import { FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
+import { NewsletterForm } from "@/components/NewsletterForm";
+import { CATEGORIES } from "@/lib/category-map";
+import { SITE } from "@/lib/site-config";
 
-const footerColumns = {
-  rentals: {
-    title: "Rentals",
-    links: [
-      "What's New",
-      "Tents",
-      "Furnishings",
-      "Tabletop",
-      "Catering",
-      "Decor",
-      "More for Your Event",
-    ],
-  },
-  showrooms: {
-    title: "Showrooms",
-    links: ["Oahu (HQ)", "Maui"],
-  },
-  quickLinks: {
-    title: "Quick Links",
-    links: [
-      "About Us",
-      "What We Do",
-      "Account",
-      "Contact Us",
-      "Featured Events",
-      "Gallery",
-      "Privacy Policy",
-    ],
-  },
-};
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
+const rentalLinks: FooterLink[] = CATEGORIES.map((c) => ({
+  label: c.label,
+  href: `/rentals/${c.slug}`,
+}));
+
+const showroomLinks: FooterLink[] = SITE.locations.map((loc) => ({
+  label: loc.island === "Oahu" ? "Oahu (HQ)" : loc.island,
+  href: "/contact",
+}));
+
+const quickLinks: FooterLink[] = [
+  { label: "About Us", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Featured Events", href: "/gallery" },
+];
 
 const socialLinks = [
-  { icon: FacebookIcon, label: "Facebook" },
-  { icon: InstagramIcon, label: "Instagram" },
-  { icon: YoutubeIcon, label: "YouTube" },
-  { icon: PinterestIcon, label: "Pinterest" },
+  { icon: FacebookIcon, label: "Facebook", href: SITE.social.facebook },
+  { icon: InstagramIcon, label: "Instagram", href: SITE.social.instagram },
+  { icon: YoutubeIcon, label: "YouTube", href: SITE.social.youtube },
+  { icon: PinterestIcon, label: "Pinterest", href: SITE.social.pinterest },
 ] as const;
 
 const columnTitleStyle: React.CSSProperties = {
@@ -61,15 +55,15 @@ function FooterLinkColumn({
   links,
 }: {
   title: string;
-  links: string[];
+  links: FooterLink[];
 }) {
   return (
     <div>
       <h3 style={columnTitleStyle}>{title}</h3>
       <nav>
         {links.map((link) => (
-          <a key={link} href="#" className="footer-link" style={linkStyle}>
-            {link}
+          <a key={link.label} href={link.href} className="footer-link" style={linkStyle}>
+            {link.label}
           </a>
         ))}
       </nav>
@@ -91,45 +85,40 @@ export function Footer() {
         }}
         className="footer-grid"
       >
-        <FooterLinkColumn
-          title={footerColumns.rentals.title}
-          links={footerColumns.rentals.links}
-        />
-        <FooterLinkColumn
-          title={footerColumns.showrooms.title}
-          links={footerColumns.showrooms.links}
-        />
-        <FooterLinkColumn
-          title={footerColumns.quickLinks.title}
-          links={footerColumns.quickLinks.links}
-        />
+        <FooterLinkColumn title="Rentals" links={rentalLinks} />
+        <FooterLinkColumn title="Showrooms" links={showroomLinks} />
+        <FooterLinkColumn title="Quick Links" links={quickLinks} />
 
         {/* Column 4: Connect With Us */}
         <div>
           <h3 style={columnTitleStyle}>Connect With Us</h3>
           <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-            {socialLinks.map(({ icon: Icon, label }) => (
-              <a
-                key={label}
-                href="#"
-                aria-label={label}
-                style={{
-                  width: "44px",
-                  height: "44px",
-                  borderRadius: "50%",
-                  border: "2px solid #111111",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#111111",
-                  textDecoration: "none",
-                  transition: "background 0.2s, color 0.2s",
-                }}
-                className="footer-social-icon"
-              >
-                <Icon width={18} height={18} />
-              </a>
-            ))}
+            {socialLinks.map(({ icon: Icon, label, href }) => {
+              const external = /^https?:/.test(href);
+              return (
+                <a
+                  key={label}
+                  href={href}
+                  aria-label={label}
+                  {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "50%",
+                    border: "2px solid #111111",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#111111",
+                    textDecoration: "none",
+                    transition: "background 0.2s, color 0.2s",
+                  }}
+                  className="footer-social-icon"
+                >
+                  <Icon width={18} height={18} />
+                </a>
+              );
+            })}
           </div>
 
           <p
@@ -143,46 +132,7 @@ export function Footer() {
             Join Our Newsletter
           </p>
 
-          <form style={{ display: "flex", position: "relative", maxWidth: "320px" }}>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              required
-              style={{
-                flex: 1,
-                background: "transparent",
-                border: "2px solid #111111",
-                padding: "10px 90px 10px 16px",
-                fontSize: "16px",
-                color: "#111111",
-                borderRadius: "50px",
-                outline: "none",
-                fontFamily: "inherit",
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                position: "absolute",
-                right: "4px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "#111111",
-                color: "#ffffff",
-                padding: "8px 20px",
-                fontSize: "12px",
-                fontWeight: 700,
-                letterSpacing: "1px",
-                borderRadius: "50px",
-                border: "none",
-                cursor: "pointer",
-                fontFamily: "inherit",
-                whiteSpace: "nowrap",
-              }}
-            >
-              SIGN UP
-            </button>
-          </form>
+          <NewsletterForm variant="footer" />
         </div>
       </div>
 
@@ -210,7 +160,6 @@ export function Footer() {
         </p>
       </div>
 
-      {/* eslint-disable-next-line react/no-unknown-property */}
       <style>{`
         .footer-link:hover {
           color: #111111 !important;
