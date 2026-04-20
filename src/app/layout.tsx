@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { CartProvider } from "@/lib/cart-context";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -79,6 +80,10 @@ export default function RootLayout({
           {children}
           <CartDrawer />
         </CartProvider>
+        <Script
+          src="https://heygabby.net/widget.js?id=demo-accel-event-rentals-zmrf"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
