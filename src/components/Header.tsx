@@ -101,7 +101,7 @@ export function Header() {
       >
         {/* Pill container */}
         <div
-          className="mx-auto bg-white transition-[max-width,border-radius,box-shadow] duration-500 ease-in-out"
+          className="mx-auto bg-[#ff6c0e] transition-[max-width,border-radius,box-shadow] duration-500 ease-in-out"
           style={{
             borderRadius: scrolled ? 60 : 119,
             boxShadow: scrolled
@@ -126,7 +126,7 @@ export function Header() {
                 width={scrolled ? 90 : 130}
                 height={scrolled ? 28 : 40}
                 className="transition-all duration-500 ease-in-out"
-                style={{ filter: "invert(1)", height: scrolled ? 28 : 40, width: "auto" }}
+                style={{ height: scrolled ? 28 : 40, width: "auto" }}
                 priority
               />
             </Link>
@@ -143,11 +143,11 @@ export function Header() {
                 visibility: scrolled ? "hidden" : "visible",
               }}
             >
-              <div className="flex overflow-hidden rounded-full border border-[#cccccc]">
+              <div className="flex overflow-hidden rounded-full border border-white/40">
                 <input
                   type="text"
                   placeholder="What are you looking for?"
-                  className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-[#111] outline-none placeholder:text-[#999]"
+                  className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-white outline-none placeholder:text-white/70"
                   tabIndex={scrolled ? -1 : 0}
                 />
                 <button
@@ -177,20 +177,20 @@ export function Header() {
               >
                 <a
                   href="/gallery"
-                  className="cursor-pointer text-sm font-extrabold text-[#111] transition-opacity hover:opacity-70 whitespace-nowrap"
+                  className="cursor-pointer text-sm font-extrabold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
                 >
                   Gallery
                 </a>
                 <a
                   href="/about"
-                  className="flex cursor-pointer items-center gap-1 text-sm font-extrabold text-[#111] transition-opacity hover:opacity-70 whitespace-nowrap"
+                  className="flex cursor-pointer items-center gap-1 text-sm font-extrabold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
                 >
                   About
                   <ChevronDownIcon className="size-3" />
                 </a>
                 <a
                   href="/contact"
-                  className="flex cursor-pointer items-center gap-1 text-sm font-semibold text-[#111] transition-opacity hover:opacity-70 whitespace-nowrap"
+                  className="flex cursor-pointer items-center gap-1 text-sm font-semibold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
                 >
                   <LocationIcon className="size-4" />
                   Oahu
@@ -200,7 +200,7 @@ export function Header() {
               {/* Search icon — fades in on scroll */}
               <button
                 type="button"
-                className="cursor-pointer text-[#111] transition-[opacity] duration-500 ease-in-out hover:opacity-70"
+                className="cursor-pointer text-white transition-[opacity] duration-500 ease-in-out hover:opacity-70"
                 aria-label="Search"
                 style={{
                   opacity: scrolled ? 1 : 0,
@@ -213,20 +213,20 @@ export function Header() {
               {/* Always visible icons */}
               <button
                 type="button"
-                className="cursor-pointer text-[#111] transition-opacity hover:opacity-70"
+                className="cursor-pointer text-white transition-opacity hover:opacity-70"
                 aria-label="Account"
               >
                 <UserIcon className="size-5" />
               </button>
               <button
                 type="button"
-                className="relative cursor-pointer text-[#111] transition-opacity hover:opacity-70"
+                className="relative cursor-pointer text-white transition-opacity hover:opacity-70"
                 aria-label="Cart"
                 onClick={() => setCartOpen(true)}
               >
                 <CartIcon className="size-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#111] text-white text-[9px] font-bold">
+                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[#ff6c0e] text-[9px] font-bold">
                     {totalItems > 99 ? "99+" : totalItems}
                   </span>
                 )}
@@ -235,7 +235,7 @@ export function Header() {
               {/* Hamburger — fades in on scroll */}
               <button
                 type="button"
-                className="cursor-pointer text-[#111] transition-[opacity] duration-500 ease-in-out hover:opacity-70"
+                className="cursor-pointer text-white transition-[opacity] duration-500 ease-in-out hover:opacity-70"
                 aria-label="Open menu"
                 style={{
                   opacity: scrolled ? 1 : 0,
@@ -250,12 +250,12 @@ export function Header() {
             <div className="flex items-center gap-2 md:hidden">
               {/* Expandable search bar */}
               {mobileSearchOpen && (
-                <div className="flex overflow-hidden rounded-full border border-[#ccc] animate-in fade-in slide-in-from-right-4 duration-200">
+                <div className="flex overflow-hidden rounded-full border border-white/40 animate-in fade-in slide-in-from-right-4 duration-200">
                   <input
                     type="text"
                     placeholder="Search..."
                     autoFocus
-                    className="w-[140px] sm:w-[180px] border-none bg-transparent px-3 py-1.5 text-[16px] text-[#111] outline-none placeholder:text-[#999]"
+                    className="w-[140px] sm:w-[180px] border-none bg-transparent px-3 py-1.5 text-[16px] text-white outline-none placeholder:text-white/70"
                   />
                   <button
                     type="button"
@@ -268,7 +268,7 @@ export function Header() {
               )}
               <button
                 type="button"
-                className="flex items-center justify-center w-10 h-10 text-[#111] transition-opacity hover:opacity-70"
+                className="flex items-center justify-center w-10 h-10 text-white transition-opacity hover:opacity-70"
                 aria-label={mobileSearchOpen ? "Close search" : "Search"}
                 onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
               >
@@ -280,7 +280,7 @@ export function Header() {
               </button>
               <button
                 type="button"
-                className="flex items-center justify-center w-10 h-10 text-[#111] transition-opacity hover:opacity-70"
+                className="flex items-center justify-center w-10 h-10 text-white transition-opacity hover:opacity-70"
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setMobileSearchOpen(false); }}
               >
@@ -307,7 +307,7 @@ export function Header() {
                   <button
                     type="button"
                     className={`flex cursor-pointer items-center gap-1 whitespace-nowrap text-sm font-extrabold transition-opacity hover:opacity-70 ${
-                      openDropdown === "Rentals" ? "text-[#666]" : "text-[#111]"
+                      openDropdown === "Rentals" ? "text-white/70" : "text-white"
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -322,7 +322,7 @@ export function Header() {
                     <a
                       key={link.label}
                       href={link.href}
-                      className="whitespace-nowrap text-sm font-extrabold text-[#111] transition-opacity hover:opacity-70"
+                      className="whitespace-nowrap text-sm font-extrabold text-white transition-opacity hover:opacity-70"
                       tabIndex={scrolled ? -1 : 0}
                     >
                       {link.label}
@@ -331,7 +331,7 @@ export function Header() {
                 </nav>
                 <a
                   href={`tel:${SITE.phone.replace(/\D/g, "")}`}
-                  className="shrink-0 whitespace-nowrap text-sm font-semibold text-[#111] transition-opacity hover:opacity-70"
+                  className="shrink-0 whitespace-nowrap text-sm font-semibold text-white transition-opacity hover:opacity-70"
                   tabIndex={scrolled ? -1 : 0}
                 >
                   Call Us: {SITE.phone}
