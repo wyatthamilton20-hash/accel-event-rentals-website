@@ -162,10 +162,11 @@ export function Footer() {
 
       <style>{`
         .footer-link:hover {
-          color: #111111 !important;
+          color: #ff6c0e !important;
         }
         .footer-social-icon:hover {
-          background: #111111 !important;
+          background: #ff6c0e !important;
+          border-color: #ff6c0e !important;
           color: #ffffff !important;
         }
         @media (min-width: 640px) {

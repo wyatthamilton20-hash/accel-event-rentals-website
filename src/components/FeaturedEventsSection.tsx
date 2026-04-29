@@ -48,7 +48,7 @@ export function FeaturedEventsSection() {
             lineHeight: 1.1,
           }}
         >
-          Featured Events.
+          Featured Events<span style={{ color: "#ff6c0e" }}>.</span>
         </h2>
 
         {/* Subtitle */}
@@ -75,8 +75,8 @@ export function FeaturedEventsSection() {
             display: "inline-flex",
             alignItems: "center",
             gap: 10,
-            backgroundColor: "#ffffff",
-            color: "#111111",
+            backgroundColor: "#ff6c0e",
+            color: "#ffffff",
             padding: "18px 36px",
             borderRadius: 37,
             fontSize: 15,

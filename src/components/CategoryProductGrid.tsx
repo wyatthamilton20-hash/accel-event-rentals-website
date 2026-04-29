@@ -84,14 +84,14 @@ export function CategoryProductGrid({ products }: { products: Product[] }) {
             onClick={() => setCartOpen(true)}
             className="inline-flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity"
             style={{
-              backgroundColor: "#111",
+              backgroundColor: "#ff6c0e",
               color: "#fff",
               padding: "14px 32px",
               borderRadius: 50,
               fontSize: 14,
               fontWeight: 700,
               border: "none",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
+              boxShadow: "0 4px 20px rgba(255,108,14,0.35)",
             }}
           >
             View Quote ({totalItems} items)

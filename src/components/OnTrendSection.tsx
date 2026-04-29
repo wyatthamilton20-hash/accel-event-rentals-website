@@ -212,7 +212,7 @@ export function OnTrendSection() {
         {/* Header */}
         <div className="text-center mb-6">
           <h2 style={{ fontSize: "clamp(28px, 4vw, 52px)", fontWeight: 700, color: "#111", lineHeight: 1.15, margin: 0 }}>
-            Browse Our Rentals.
+            Browse Our Rentals<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <p className="mt-3 text-[15px] text-[#555] max-w-[500px] mx-auto">
             Explore by category or build a complete package for your event.
@@ -540,7 +540,7 @@ export function OnTrendSection() {
               onClick={() => setCartOpen(true)}
               className="inline-flex items-center gap-2 transition-opacity hover:opacity-85 cursor-pointer"
               style={{
-                backgroundColor: "#111",
+                backgroundColor: "#ff6c0e",
                 color: "#fff",
                 padding: "16px 36px",
                 borderRadius: 50,

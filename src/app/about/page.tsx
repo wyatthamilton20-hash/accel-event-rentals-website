@@ -33,7 +33,7 @@ export default function AboutPage() {
               </p>
               <h1 className="mt-3 text-white font-bold leading-[1.05]"
                   style={{ fontSize: "clamp(36px, 6vw, 72px)" }}>
-                Hawaii&apos;s go-to for<br />beautiful events.
+                Hawaii&apos;s go-to for<br />beautiful events<span style={{ color: "#ff6c0e" }}>.</span>
               </h1>
               <p className="mt-5 text-[14px] sm:text-[16px] font-semibold tracking-[0.3em] text-white/90 uppercase">
                 {SITE.tagline}
@@ -88,7 +88,7 @@ export default function AboutPage() {
             <div>
               <h2 className="text-[#111] font-bold leading-[1.1]"
                   style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-                What we do.
+                What we do<span style={{ color: "#ff6c0e" }}>.</span>
               </h2>
               <p className="mt-5 text-[16px] leading-[1.75] text-[#444]">
                 Weddings, corporate events, birthdays, anniversaries — whatever
@@ -99,7 +99,7 @@ export default function AboutPage() {
               </p>
               <Link
                 href="/rentals/tents"
-                className="inline-block mt-8 px-8 py-4 rounded-full bg-[#111] text-white text-[14px] font-bold tracking-wider"
+                className="inline-block mt-8 px-8 py-4 rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold tracking-wider transition-colors hover:bg-[#e55d00]"
               >
                 SHOP RENTALS
               </Link>
@@ -110,7 +110,7 @@ export default function AboutPage() {
         <section className="max-w-[1100px] mx-auto px-6 sm:px-8 mt-20">
           <h2 className="text-center text-[#111] font-bold leading-[1.1]"
               style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            Visit a showroom.
+            Visit a showroom<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <div className="mt-10 grid sm:grid-cols-2 gap-6">
             {SITE.locations.map((loc) => (
@@ -133,7 +133,7 @@ export default function AboutPage() {
           <div className="mt-10 text-center">
             <Link
               href="/contact"
-              className="inline-block px-8 py-4 rounded-full border-2 border-[#111] text-[#111] text-[14px] font-bold tracking-wider"
+              className="inline-block px-8 py-4 rounded-full border-2 border-[#ff6c0e] text-[#ff6c0e] text-[14px] font-bold tracking-wider transition-colors hover:bg-[#ff6c0e] hover:text-white"
             >
               CONTACT US
             </Link>

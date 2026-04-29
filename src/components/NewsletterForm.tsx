@@ -76,7 +76,7 @@ export function NewsletterForm({ variant }: Props) {
               right: "4px",
               top: "50%",
               transform: "translateY(-50%)",
-              background: "#111111",
+              background: "#ff6c0e",
               color: "#ffffff",
               padding: "8px 20px",
               fontSize: "12px",
@@ -128,7 +128,7 @@ export function NewsletterForm({ variant }: Props) {
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="w-full rounded-full bg-[#111] px-6 py-3 text-[14px] font-bold tracking-wider text-white cursor-pointer sm:absolute sm:right-1 sm:top-1/2 sm:w-auto sm:-translate-y-1/2 sm:px-6 sm:py-2.5 disabled:opacity-60"
+          className="w-full rounded-full bg-[#ff6c0e] px-6 py-3 text-[14px] font-bold tracking-wider text-white cursor-pointer sm:absolute sm:right-1 sm:top-1/2 sm:w-auto sm:-translate-y-1/2 sm:px-6 sm:py-2.5 disabled:opacity-60 transition-colors hover:bg-[#e55d00]"
           style={{ border: "none", letterSpacing: "1px" }}
         >
           {status === "submitting" ? "…" : "SIGN ME UP"}

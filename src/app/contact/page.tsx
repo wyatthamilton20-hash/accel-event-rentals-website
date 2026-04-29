@@ -33,7 +33,7 @@ export default function ContactPage() {
               </p>
               <h1 className="mt-3 text-white font-bold leading-[1.05]"
                   style={{ fontSize: "clamp(36px, 6vw, 64px)" }}>
-                Contact us.
+                Contact us<span style={{ color: "#ff6c0e" }}>.</span>
               </h1>
             </div>
           </div>
@@ -79,7 +79,7 @@ export default function ContactPage() {
         <section className="max-w-[1100px] mx-auto px-6 sm:px-8 pb-16">
           <h2 className="text-center text-[#111] font-bold leading-[1.1]"
               style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            Visit a showroom.
+            Visit a showroom<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <div className="mt-10 grid md:grid-cols-2 gap-6">
             {SITE.locations.map((loc) => (
@@ -106,7 +106,7 @@ export default function ContactPage() {
           <div className="rounded-2xl bg-[#111] text-white p-10 sm:p-14">
             <h2 className="font-bold leading-[1.1]"
                 style={{ fontSize: "clamp(24px, 3.5vw, 36px)" }}>
-              Ready to start planning?
+              Ready to start planning<span style={{ color: "#ff6c0e" }}>?</span>
             </h2>
             <p className="mt-4 text-[15px] text-white/80 leading-[1.7]">
               Browse our catalog, add items to a quote, pick your event dates,
@@ -115,7 +115,7 @@ export default function ContactPage() {
             </p>
             <Link
               href="/rentals/tents"
-              className="inline-block mt-8 px-8 py-4 rounded-full bg-white text-[#111] text-[14px] font-bold tracking-wider"
+              className="inline-block mt-8 px-8 py-4 rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold tracking-wider transition-colors hover:bg-[#e55d00]"
             >
               BROWSE THE CATALOG
             </Link>

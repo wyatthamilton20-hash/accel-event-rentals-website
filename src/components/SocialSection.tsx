@@ -30,7 +30,7 @@ export function SocialSection() {
           lineHeight: 1.1,
         }}
       >
-        Let&apos;s Get Social.
+        Let&apos;s Get Social<span style={{ color: "#ff6c0e" }}>.</span>
       </h2>
 
       {/* Social Icons */}
@@ -58,7 +58,7 @@ export function SocialSection() {
         {...(/^https?:/.test(SITE.social.instagram)
           ? { target: "_blank", rel: "noopener noreferrer" }
           : {})}
-        className="inline-flex items-center gap-2.5 bg-[#111] text-white px-9 py-[18px] text-[15px] font-bold no-underline transition-colors hover:bg-[#333]"
+        className="inline-flex items-center gap-2.5 bg-[#ff6c0e] text-white px-9 py-[18px] text-[15px] font-bold no-underline transition-colors hover:bg-[#e55d00]"
         style={{ borderRadius: 37, letterSpacing: "-0.01em" }}
       >
         Follow Us
