@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getCategoryByLabel } from "@/lib/category-map";
 import {
   SearchIcon,
@@ -35,6 +36,7 @@ const STATIC_LINKS: { label: string; href: string }[] = [
 ];
 
 export function Header() {
+  const router = useRouter();
   const { totalItems, setCartOpen } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -43,6 +45,16 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<NavCategory[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
+
+  function submitSearch(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    const q = String(data.get("q") ?? "").trim();
+    if (!q) return;
+    setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
+    router.push(`/search?q=${encodeURIComponent(q)}`);
+  }
 
   useEffect(() => {
     const onScroll = () => {
@@ -143,22 +155,27 @@ export function Header() {
                 visibility: scrolled ? "hidden" : "visible",
               }}
             >
-              <div className="flex overflow-hidden rounded-full border border-white/40">
+              <form
+                onSubmit={submitSearch}
+                role="search"
+                className="flex overflow-hidden rounded-full border border-white/40"
+              >
                 <input
                   type="text"
+                  name="q"
                   placeholder="What are you looking for?"
                   className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-white outline-none placeholder:text-white/70"
                   tabIndex={scrolled ? -1 : 0}
                 />
                 <button
-                  type="button"
+                  type="submit"
                   className="flex shrink-0 items-center justify-center bg-[#111] px-3 transition-opacity hover:opacity-80"
                   aria-label="Search"
                   tabIndex={scrolled ? -1 : 0}
                 >
                   <SearchIcon className="size-4 text-white" />
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Utility Links */}
@@ -198,8 +215,8 @@ export function Header() {
               </div>
 
               {/* Search icon — fades in on scroll */}
-              <button
-                type="button"
+              <Link
+                href="/search"
                 className="cursor-pointer text-white transition-[opacity] duration-500 ease-in-out hover:opacity-70"
                 aria-label="Search"
                 style={{
@@ -208,7 +225,7 @@ export function Header() {
                 }}
               >
                 <SearchIcon className="size-5" />
-              </button>
+              </Link>
 
               {/* Always visible icons */}
               <button
@@ -250,21 +267,26 @@ export function Header() {
             <div className="flex items-center gap-2 md:hidden">
               {/* Expandable search bar */}
               {mobileSearchOpen && (
-                <div className="flex overflow-hidden rounded-full border border-white/40 animate-in fade-in slide-in-from-right-4 duration-200">
+                <form
+                  onSubmit={submitSearch}
+                  role="search"
+                  className="flex overflow-hidden rounded-full border border-white/40 animate-in fade-in slide-in-from-right-4 duration-200"
+                >
                   <input
                     type="text"
+                    name="q"
                     placeholder="Search..."
                     autoFocus
                     className="w-[140px] sm:w-[180px] border-none bg-transparent px-3 py-1.5 text-[16px] text-white outline-none placeholder:text-white/70"
                   />
                   <button
-                    type="button"
+                    type="submit"
                     className="flex shrink-0 items-center justify-center bg-[#111] px-2.5"
                     aria-label="Submit search"
                   >
                     <SearchIcon className="size-3.5 text-white" />
                   </button>
-                </div>
+                </form>
               )}
               <button
                 type="button"
@@ -402,20 +424,25 @@ export function Header() {
             className="mt-2 rounded-3xl bg-white p-6 md:hidden"
             style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
           >
-            <div className="mb-4 flex overflow-hidden rounded-full border border-[#cccccc]">
+            <form
+              onSubmit={submitSearch}
+              role="search"
+              className="mb-4 flex overflow-hidden rounded-full border border-[#cccccc]"
+            >
               <input
                 type="text"
+                name="q"
                 placeholder="What are you looking for?"
                 className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-[#111] outline-none placeholder:text-[#999]"
               />
               <button
-                type="button"
+                type="submit"
                 className="flex shrink-0 items-center justify-center bg-[#111] px-3"
                 aria-label="Search"
               >
                 <SearchIcon className="size-4 text-white" />
               </button>
-            </div>
+            </form>
             <nav className="flex flex-col gap-1 max-h-[50vh] overflow-y-auto">
               {/* Rentals with expandable categories */}
               <div>
