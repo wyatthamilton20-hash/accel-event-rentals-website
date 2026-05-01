@@ -62,4 +62,31 @@ scripts/            # Asset download scripts
 - After editing `AGENTS.md`, run `bash scripts/sync-agent-rules.sh` to regenerate platform-specific instruction files.
 - After editing `.claude/skills/clone-website/SKILL.md`, run `node scripts/sync-skills.mjs` to regenerate the skill for all platforms.
 
+## Current Project Strategy — Two-Branch Comparison
+
+The client (Accel Event Rentals) is undecided between two strategic directions for this marketing site. We're building both as separate Git branches off `master` and using Vercel's automatic per-branch preview URLs to evaluate side-by-side.
+
+### Branches
+- **`master`** — current state. Internal `/rentals/[slug]` product pages, internal `/search`, global cart drawer, "Submit Quote (Disabled — Test Mode)" button. Untouched while comparison is in progress.
+- **`link-to-shop`** (Phase A — built first) — pure marketing brochure that hands every commerce action to the existing storefront at `https://shop.accelrentals.com` (Rent Ant platform). Deletes the cart layer, internal /rentals routes, and internal /search. Adds permanent redirects in `next.config.ts` for SEO. Centralized in `src/lib/site-config.ts` via `SITE.shopUrl` + `shopCategoryUrl(slug?)` helper.
+- **`homemade-quote-flow`** (Phase B — deferred) — homemade quote-request flow built into our site. No payment, staff approves manually, eventually pushes confirmed bookings to Current RMS via the existing API key once `RMS_WRITE_ENABLED=true`. Stays in **TEST MODE**. Uses the client's existing email service. Branch will be cut from `master` (NOT from `link-to-shop`) only after Phase A is reviewed and the client explicitly asks for it.
+
+### Decisions captured (do not relitigate without checking with the user)
+- **No Supabase, no Stripe.** Client doesn't want either.
+- **Quote workflow only** — no online payment ever. Staff reviews submissions and reaches out.
+- **Guest-first.** No accounts UI in either phase.
+- **Current RMS is read-only today** (enforced by comment in `src/lib/current-rms.ts`). Only Phase B Step 2 flips this, behind `RMS_WRITE_ENABLED` flag, with a `RMS_WRITE_DRY_RUN` mode for staff testing.
+- **Shop deep-linking**: `shop.accelrentals.com` uses `/categories/{numericId}/{Name}` URLs, but we don't have the slug→ID mapping AND those deep pages currently get stuck on "Searching...". For now `shopCategoryUrl(slug)` ignores the slug and returns the `/categories` hub. The slug param is the upgrade seam for the future deep-link change (single function-body edit).
+- **All shop links open in a new tab** (`target="_blank" rel="noopener noreferrer"`).
+
+### How the comparison works
+1. Phase A `link-to-shop` pushed to GitHub → Vercel emits preview URL #1.
+2. Send URL #1 to the client.
+3. If client says "this is enough" → PR `link-to-shop → master`, merge, done.
+4. If client says "I want our own quote flow too" → enter plan mode for Phase B, cut `homemade-quote-flow` from `master`, push, get URL #2.
+5. `master` stays unchanged through evaluation. Either branch can be discarded cheaply.
+
+### Plan file
+The detailed plan with file-by-file changes lives at `~/.claude/plans/what-color-orange-are-refactored-boole.md`.
+
 @docs/research/INSPECTION_GUIDE.md
