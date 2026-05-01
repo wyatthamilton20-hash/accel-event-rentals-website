@@ -65,6 +65,42 @@ scripts/            # Asset download scripts
 - After editing `AGENTS.md`, run `bash scripts/sync-agent-rules.sh` to regenerate platform-specific instruction files.
 - After editing `.claude/skills/clone-website/SKILL.md`, run `node scripts/sync-skills.mjs` to regenerate the skill for all platforms.
 
+## Current Project Strategy — Two-Branch Comparison
+
+The client (Accel Event Rentals) is undecided between two strategic directions for this marketing site. Both are built as separate Git branches off `master`. Vercel auto-builds a preview URL for each branch, allowing side-by-side review.
+
+### Branches
+- **`master`** — productionized baseline. Internal `/rentals/[slug]` pages, internal `/search`, global cart drawer with **disabled** "Submit Quote (Test Mode)" button. Untouched by either phase branch.
+- **`link-to-shop`** (Phase A — shipped) — pure marketing brochure that hands every commerce action to `https://shop.accelrentals.com` (Rent Ant). Deletes cart layer + internal /rentals + /search. Adds `next.config.ts` redirects + `SITE.shopUrl` + `shopCategoryUrl(slug?)` helper.
+- **`homemade-quote-flow`** (Phase B — shipped) — homemade quote-request flow. Adds `/quote/review`, `/quote/submitted`, `POST /api/quotes`, foundations libs (`lib/test-mode`, `lib/rate-limit`, `lib/idempotency`, `lib/email`, `lib/log`, `lib/quote-types`, `lib/quote-store`), cart hardening (localStorage, idempotency key, hydration boundary), and a stubbed `createOpportunity()` in `lib/current-rms.ts` gated by `RMS_WRITE_ENABLED=true`. Stays in **TEST MODE** by default.
+
+### Decisions captured (do not relitigate without checking with the user)
+- **No Supabase, no Stripe.** Client doesn't want either.
+- **Quote workflow only** — no online payment ever. Staff reviews submissions and reaches out.
+- **Guest-first.** No accounts UI in either phase.
+- **No Vercel-specific storage** (no Blob, no KV) — vendor-neutral interfaces only.
+- **Email provider deferred.** `ConsoleEmailProvider` (logs to stdout) is the default. Plug in real provider via 1-file change in `lib/email.ts` when client picks one.
+- **Current RMS is read-only today** (enforced by comment in `src/lib/current-rms.ts`). Phase B adds a stubbed write behind `RMS_WRITE_ENABLED` flag with `RMS_WRITE_DRY_RUN` mode for staff testing — not active.
+- **Shop deep-linking**: `shop.accelrentals.com` uses `/categories/{numericId}/{Name}` URLs but ID mapping isn't available + deep pages currently fail to load. Phase A's `shopCategoryUrl(slug)` ignores slug and returns `/categories` hub. Single-function-body change when ready to upgrade.
+- **All shop links open in a new tab** (`target="_blank" rel="noopener noreferrer"`).
+- **Spam protection on /api/quotes**: honeypot + per-IP rate limit (5/min) + per-email rate limit (3/hr) + same-origin check. No CAPTCHA in Phase B.
+
+### Phase B env vars (set in Vercel before flipping to live)
+- `QUOTE_TEST_MODE` — `true` keeps subjects tagged `[TEST]` and banner visible. `false` only when going live.
+- `QUOTE_NOTIFY_EMAILS` — comma-separated staff inboxes (e.g. `sales@accelrentals.com,ops@accelrentals.com`).
+- `EMAIL_PROVIDER` — `console` today; will be `resend` / `postmark` / `smtp` once a provider is plugged in.
+- `RMS_WRITE_ENABLED` — leave `false` until Phase C.
+- `RMS_WRITE_DRY_RUN` — `true` while testing the future RMS write path.
+
+### How the comparison works
+1. Both phase branches pushed → 2 Vercel preview URLs.
+2. Send both URLs to client.
+3. Client picks: A only / B only / hybrid → open PR to `master`, merge winner.
+4. `master` stays unchanged through evaluation. Either branch can be discarded cheaply.
+
+### Plan file
+The detailed Phase B plan lives at `~/.claude/plans/what-color-orange-are-refactored-boole.md`.
+
 # Website Inspection Guide
 
 ## How to Reverse-Engineer Any Website
