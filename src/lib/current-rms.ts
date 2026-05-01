@@ -6,6 +6,7 @@
  */
 
 import manifest from "./product-images-manifest.json";
+import { log } from "./log";
 
 const SUBDOMAIN = process.env.CURRENT_RMS_SUBDOMAIN;
 const API_KEY = process.env.CURRENT_RMS_API_KEY;
@@ -223,4 +224,51 @@ export async function getProductById(id: number): Promise<Product | null> {
 export async function getProductsByIds(ids: number[]): Promise<Product[]> {
   const results = await Promise.all(ids.map((id) => getProductById(id)));
   return results.filter((p): p is Product => p !== null);
+}
+
+// --- Phase C write-back stub ---
+// The READ ONLY enforcement above still applies to every other code path.
+// `createOpportunity` is gated behind `RMS_WRITE_ENABLED` and ships the
+// real fetch only when staff explicitly turn it on. Until then it either
+// throws (default) or dry-runs (logs the payload).
+
+export interface CreateOpportunityInput {
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  member_id?: number;
+  custom_fields?: Record<string, unknown>;
+}
+
+export interface CreateOpportunityResult {
+  id: string | number;
+  dryRun: boolean;
+}
+
+export async function createOpportunity(
+  input: CreateOpportunityInput
+): Promise<CreateOpportunityResult> {
+  if (process.env.RMS_WRITE_ENABLED !== "true") {
+    throw new Error(
+      "createOpportunity is disabled — set RMS_WRITE_ENABLED=true to enable Current RMS write-back"
+    );
+  }
+
+  const body = { opportunity: input };
+
+  if (process.env.RMS_WRITE_DRY_RUN === "true") {
+    log.info(
+      "rms_create_opportunity_dry_run",
+      { body: body as unknown as Record<string, unknown> },
+      { pii: true }
+    );
+    return { id: `dry-run-${Date.now()}`, dryRun: true };
+  }
+
+  // TODO: live write-back. When enabled, POST to:
+  //   `${BASE_URL}/opportunities` (e.g. https://api.current-rms.com/api/v1/opportunities)
+  // with auth headers X-SUBDOMAIN + X-AUTH-TOKEN and JSON body shaped as:
+  //   { opportunity: { name, starts_at, ends_at, member_id?, custom_fields? } }
+  // then parse the response and return the created opportunity id.
+  throw new Error("createOpportunity live write-back is not implemented yet");
 }
