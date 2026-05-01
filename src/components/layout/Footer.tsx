@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { CATEGORIES } from "@/lib/category-map";
 import { SITE, shopCategoryUrl } from "@/lib/site-config";
 

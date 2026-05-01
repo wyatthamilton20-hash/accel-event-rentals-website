@@ -1,28 +1,13 @@
 {
-  "name": "ai-website-clone-template",
-  "version": "0.3.1",
+  "name": "accel-event-rentals-website",
+  "version": "0.1.0",
   "private": true,
-  "description": "Clone any website into a clean, modern Next.js codebase using AI coding agents",
-  "author": "JCodesMore",
-  "license": "MIT",
+  "description": "Marketing and product-discovery site for Accel Event Rentals (Oahu & Maui)",
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JCodesMore/ai-website-cloner-template.git"
+    "url": "https://github.com/wyatthamilton20-hash/accel-event-rentals-website.git"
   },
-  "homepage": "https://github.com/JCodesMore/ai-website-cloner-template",
-  "bugs": {
-    "url": "https://github.com/JCodesMore/ai-website-cloner-template/issues"
-  },
-  "keywords": [
-    "claude-code",
-    "website-clone",
-    "reverse-engineering",
-    "nextjs",
-    "ai",
-    "template",
-    "tailwindcss",
-    "shadcn-ui"
-  ],
   "engines": {
     "node": ">=24"
   },

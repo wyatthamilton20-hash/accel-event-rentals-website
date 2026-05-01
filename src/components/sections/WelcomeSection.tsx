@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fetchGoogleReviews } from "@/lib/google-reviews";
-import { ReviewsCarousel } from "@/components/ReviewsCarousel";
+import { ReviewsCarousel } from "@/components/sections/ReviewsCarousel";
 
 export async function WelcomeSection() {
   const reviewsData = await fetchGoogleReviews();
