@@ -10,6 +10,8 @@ export const SITE = {
   // Swap to the production domain (e.g. https://accelrentals.com) once the
   // Vercel redeploy is pointed at the real DNS.
   url: "https://accel-website-template-zeta.vercel.app",
+  // External e-commerce storefront (Rent Ant). All commerce links open here.
+  shopUrl: "https://shop.accelrentals.com",
   phone: "(808) 484-2258",
   email: "sales@accelrentals.com",
   tagline: "Laulima. Ho'okipa. Pono.",
@@ -38,3 +40,9 @@ export const SITE = {
     youtube: "#",
   },
 } as const;
+
+// Today returns the shop hub. Future deep-link upgrade (slug → numeric ID)
+// is a single function-body change here.
+export function shopCategoryUrl(_slug?: string): string {
+  return `${SITE.shopUrl}/categories`;
+}

@@ -27,6 +27,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/rentals/:slug*",
+        destination: "https://shop.accelrentals.com/categories",
+        permanent: true,
+      },
+      {
+        source: "/search",
+        destination: "https://shop.accelrentals.com/categories",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
