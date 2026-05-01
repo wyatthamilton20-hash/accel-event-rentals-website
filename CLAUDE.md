@@ -1,5 +1,3 @@
-@AGENTS.md
-
 ## Keep README.md in sync
 
 `README.md` is the canonical entry point for the human dev team that will eventually take over this codebase. Keep it accurate as work progresses.
