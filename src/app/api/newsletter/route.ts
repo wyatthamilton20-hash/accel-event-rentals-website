@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 /**
  * Newsletter subscribe — POST { email }
@@ -21,26 +22,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 5;
-const rateHits = new Map<string, number[]>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const hits = (rateHits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (hits.length >= RATE_MAX) {
-    rateHits.set(ip, hits);
-    return true;
-  }
-  hits.push(now);
-  rateHits.set(ip, hits);
-  return false;
-}
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
-  if (rateLimited(ip)) {
+  const ip = getClientIp(request);
+  if (rateLimit({ key: `ip:${ip}:newsletter`, limit: RATE_MAX, windowMs: RATE_WINDOW_MS })) {
     return NextResponse.json(
       { ok: false, error: "Too many requests. Try again shortly." },
       { status: 429 }

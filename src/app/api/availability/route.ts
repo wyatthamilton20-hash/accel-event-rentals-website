@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { crmsGet } from "@/lib/current-rms";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 /**
  * Availability Check — READ ONLY
@@ -49,37 +50,13 @@ function parseBody(body: unknown): Parsed {
   return { ok: true, value: { startDate, endDate, productIds } };
 }
 
-// Tiny in-memory per-IP rate limiter. Good enough for Vercel Fluid Compute
-// where a hot instance handles many requests; not a durable global limit.
 const RATE_WINDOW_MS = 30_000;
 const RATE_MAX = 10;
-const rateHits = new Map<string, number[]>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  const hits = (rateHits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (hits.length >= RATE_MAX) {
-    rateHits.set(ip, hits);
-    return true;
-  }
-  hits.push(now);
-  rateHits.set(ip, hits);
-  // Light GC so the map doesn't grow unbounded on long-lived instances.
-  if (rateHits.size > 1000) {
-    for (const [k, v] of rateHits) {
-      if (v.every((t) => now - t >= RATE_WINDOW_MS)) rateHits.delete(k);
-    }
-  }
-  return false;
-}
 
 export async function POST(request: Request) {
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
+  const ip = getClientIp(request);
 
-  if (rateLimited(ip)) {
+  if (rateLimit({ key: `ip:${ip}:availability`, limit: RATE_MAX, windowMs: RATE_WINDOW_MS })) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
