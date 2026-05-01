@@ -1,4 +1,4 @@
-import { NewsletterForm } from "@/components/NewsletterForm";
+import { NewsletterForm } from "@/components/forms/NewsletterForm";
 
 export function EmailSignupSection() {
   return (

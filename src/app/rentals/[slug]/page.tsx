@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCategoryBySlug, CATEGORIES } from "@/lib/category-map";
 import { getProducts } from "@/lib/current-rms";
-import { CategoryProductGrid } from "@/components/CategoryProductGrid";
+import { CategoryProductGrid } from "@/components/catalog/CategoryProductGrid";
 
 export const revalidate = 86400; // 24 hours — product catalog
 

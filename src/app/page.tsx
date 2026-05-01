@@ -1,12 +1,12 @@
-import { Header } from "@/components/Header";
-import { HeroCarousel } from "@/components/HeroCarousel";
-import { OnTrendSection } from "@/components/OnTrendSection";
-import { WelcomeSection } from "@/components/WelcomeSection";
-import { FeaturedEventsSection } from "@/components/FeaturedEventsSection";
-import { SocialSection } from "@/components/SocialSection";
-import { EmailSignupSection } from "@/components/EmailSignupSection";
-import { Footer } from "@/components/Footer";
-import { SectionMarker } from "@/components/SectionMarker";
+import { Header } from "@/components/layout/Header";
+import { HeroCarousel } from "@/components/sections/HeroCarousel";
+import { OnTrendSection } from "@/components/sections/OnTrendSection";
+import { WelcomeSection } from "@/components/sections/WelcomeSection";
+import { FeaturedEventsSection } from "@/components/sections/FeaturedEventsSection";
+import { SocialSection } from "@/components/sections/SocialSection";
+import { EmailSignupSection } from "@/components/sections/EmailSignupSection";
+import { Footer } from "@/components/layout/Footer";
+import { SectionMarker } from "@/components/dev/SectionMarker";
 
 export default function Home() {
   return (
