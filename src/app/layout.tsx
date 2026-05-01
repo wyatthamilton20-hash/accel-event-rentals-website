@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Poppins } from "next/font/google";
-import { CartProvider } from "@/lib/cart-context";
-import { CartDrawer } from "@/components/CartDrawer";
 import { SITE } from "@/lib/site-config";
 import "./globals.css";
 
@@ -76,10 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
-        <CartProvider>
-          {children}
-          <CartDrawer />
-        </CartProvider>
+        {children}
         <Script
           src="https://heygabby.net/widget.js?id=demo-accel-event-rentals-zmrf"
           strategy="afterInteractive"

@@ -3,19 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { getCategoryByLabel } from "@/lib/category-map";
 import { shopCategoryUrl } from "@/lib/site-config";
 import {
   SearchIcon,
   ChevronDownIcon,
   UserIcon,
-  CartIcon,
   LocationIcon,
   MenuIcon,
   CloseIcon,
 } from "@/components/icons";
-import { useCart } from "@/lib/cart-context";
 import { SITE } from "@/lib/site-config";
 
 interface CatalogProduct {
@@ -37,8 +34,6 @@ const STATIC_LINKS: { label: string; href: string }[] = [
 ];
 
 export function Header() {
-  const router = useRouter();
-  const { totalItems, setCartOpen } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -51,10 +46,12 @@ export function Header() {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const q = String(data.get("q") ?? "").trim();
-    if (!q) return;
     setMobileMenuOpen(false);
     setMobileSearchOpen(false);
-    router.push(`/search?q=${encodeURIComponent(q)}`);
+    const url = q
+      ? `${SITE.shopUrl}/search?q=${encodeURIComponent(q)}`
+      : `${SITE.shopUrl}/categories`;
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   useEffect(() => {
@@ -216,8 +213,10 @@ export function Header() {
               </div>
 
               {/* Search icon — fades in on scroll */}
-              <Link
-                href="/search"
+              <a
+                href={`${SITE.shopUrl}/categories`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="cursor-pointer text-white transition-[opacity] duration-500 ease-in-out hover:opacity-70"
                 aria-label="Search"
                 style={{
@@ -226,7 +225,7 @@ export function Header() {
                 }}
               >
                 <SearchIcon className="size-5" />
-              </Link>
+              </a>
 
               {/* Always visible icons */}
               <button
@@ -236,20 +235,6 @@ export function Header() {
               >
                 <UserIcon className="size-5" />
               </button>
-              <button
-                type="button"
-                className="relative cursor-pointer text-white transition-opacity hover:opacity-70"
-                aria-label="Cart"
-                onClick={() => setCartOpen(true)}
-              >
-                <CartIcon className="size-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-white text-[#ff6c0e] text-[9px] font-bold">
-                    {totalItems > 99 ? "99+" : totalItems}
-                  </span>
-                )}
-              </button>
-
               {/* Hamburger — fades in on scroll */}
               <button
                 type="button"
@@ -510,24 +495,6 @@ export function Header() {
               >
                 Call Us: {SITE.phone}
               </a>
-            </div>
-            <div className="mt-4 flex items-center gap-4 border-t border-[#eee] pt-4">
-              <button
-                type="button"
-                className="relative text-[#111]"
-                aria-label="Cart"
-                onClick={() => {
-                  setCartOpen(true);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <CartIcon className="size-5" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#111] text-white text-[9px] font-bold">
-                    {totalItems > 99 ? "99+" : totalItems}
-                  </span>
-                )}
-              </button>
             </div>
           </div>
         )}
