@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/category-map";
 import { getProducts, type Product } from "@/lib/current-rms";
-import { CategoryProductGrid } from "@/components/CategoryProductGrid";
+import { CategoryProductGrid } from "@/components/catalog/CategoryProductGrid";
 
 export const revalidate = 86400;
 

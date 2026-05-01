@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Poppins } from "next/font/google";
 import { CartProvider } from "@/lib/cart-context";
-import { CartDrawer } from "@/components/CartDrawer";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { SITE } from "@/lib/site-config";
 import "./globals.css";
 

@@ -82,12 +82,8 @@ src/
   hooks/  types/
 public/
   images/  videos/  seo/   # downloaded assets, favicons, OG images
-docs/
-  research/                # design tokens, component inventory
-  design-references/       # screenshots
 scripts/
   download-product-images.mjs  # mirror Current RMS images locally
-  download-assets.mjs
 ```
 
 ## Routes
@@ -135,7 +131,6 @@ Each branch gets its own Vercel preview URL automatically. Do not merge `link-to
 - The two-branch comparison determines which direction the codebase converges to. After the client picks one, the other branch should be deleted.
 - `SITE.url` and the Vercel domain must be updated together when production DNS is ready.
 - TEST MODE on the cart's "Submit Quote" button is intentional — see `CartDrawer.tsx`. Do not enable until the quote backend is built (Phase B / `homemade-quote-flow` branch).
-- The `docs/research/` folder contains the original design-extraction notes from the build phase. Useful for context, not load-bearing.
 
 ## License
 

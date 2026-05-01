@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { QuoteForm } from "@/components/QuoteForm";
+import { QuoteForm } from "@/components/forms/QuoteForm";
 
 export const metadata: Metadata = {
   title: "Review your quote",
