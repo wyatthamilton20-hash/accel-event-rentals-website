@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Local agent/tool scratch — never ship-relevant code:
+    ".claude/**",
+    "temp/**",
   ]),
 ]);
 

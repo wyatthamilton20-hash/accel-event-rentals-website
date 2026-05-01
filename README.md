@@ -1,155 +1,142 @@
-# AI Website Cloner Template
+# Accel Event Rentals — Website
 
-<a href="https://github.com/JCodesMore/ai-website-cloner-template/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a> <a href="https://github.com/JCodesMore/ai-website-cloner-template/stargazers"><img src="https://img.shields.io/github/stars/JCodesMore/ai-website-cloner-template?style=flat" alt="Stars" /></a> <a href="https://discord.gg/hrTSX5yTpB"><img src="https://img.shields.io/discord/1400896964597383279?label=discord" alt="Discord" /></a>
+Marketing + product-discovery site for [Accel Event Rentals](https://accelrentals.com) (Oahu & Maui). Pulls the live product catalog from Current RMS, surfaces it under `/rentals`, and routes inquiries through a contact form and newsletter signup.
 
-A reusable template for reverse-engineering any website into a clean, modern Next.js codebase using AI coding agents. 
+## Tech stack
 
-**Recommended: [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with Opus 4.6 for best results** — but works with a variety of AI coding agents.
+- **Framework**: Next.js 16 (App Router) + React 19, TypeScript strict
+- **Styling**: Tailwind CSS v4 + shadcn/ui (Radix primitives)
+- **Hosting**: Vercel (project `accelwebsiteredo`)
+- **Catalog data**: Current RMS REST API (read-only)
+- **Reviews**: Google Places API (New)
+- **Newsletter**: Mailchimp
+- **Live chat**: HeyGabby widget (loaded site-wide in `app/layout.tsx`)
+- **Node**: ≥ 24
 
-Point it at a URL, run `/clone-website`, and your AI agent will inspect the site, extract design tokens and assets, write component specs, and dispatch parallel builders to reconstruct every section.
+## Quick start
 
-## Demo
+```bash
+npm install
+cp .env.example .env.local   # fill in the keys you need (see below)
+npm run dev                  # http://localhost:3000
+```
 
-[![Watch the demo](docs/design-references/comparison.png)](https://youtu.be/O669pVZ_qr0)
+The site renders with placeholders if external API keys are missing — you can develop most of the UI without any credentials.
 
-> Click the image above to watch the full demo on YouTube.
+## Environment variables
 
-## Quick Start
+All vars live in `.env.local` for development and in the Vercel project for preview/production. See `.env.example` for the full list.
 
-1. **Clone this repository**
-   ```bash
-   git clone https://github.com/JCodesMore/ai-website-cloner-template.git my-clone
-   cd my-clone
-   ```
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-3. **Start your AI agent** — Claude Code recommended:
-   ```bash
-   claude --chrome
-   ```
-4. **Run the skill**:
-   ```
-   /clone-website <target-url1> [<target-url2> ...]
-   ```
-5. **Customize** (optional) — after the base clone is built, modify as needed
+| Variable | Purpose | Required for |
+|---|---|---|
+| `CURRENT_RMS_SUBDOMAIN` | Current RMS account subdomain | Live product catalog (`/rentals`, `/search`, header mega-menu) |
+| `CURRENT_RMS_API_KEY` | Current RMS API token (read-only scope) | Same as above |
+| `GOOGLE_PLACES_API_KEY` | Google Places (New) API key | Live reviews in Welcome section |
+| `GOOGLE_PLACE_ID` | Place ID for Accel's Honolulu listing | Same as above |
+| `MAILCHIMP_API_KEY` | Mailchimp API key (`<hex>-<dc>` format) | Newsletter signup |
+| `MAILCHIMP_LIST_ID` | Audience/list ID | Newsletter signup |
+| `MAILCHIMP_DC` | Mailchimp data-center suffix (e.g. `us14`) | Newsletter signup |
 
-> Using a different agent? Open `AGENTS.md` for project instructions — most agents pick it up automatically.
+If Mailchimp vars are unset, `/api/newsletter` returns 503 and the form shows a friendly fallback. If Current RMS vars are unset during build, pages render with empty product grids rather than failing.
 
-## Supported Platforms
+## Scripts
 
-| Agent                                                         | Status                     |
-| ------------------------------------------------------------- | -------------------------- |
-| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | **Recommended** — Opus 4.6 |
-| [Codex CLI](https://github.com/openai/codex)                  | Supported                  |
-| [OpenCode](https://opencode.ai/)                              | Supported                  |
-| [GitHub Copilot](https://github.com/features/copilot)         | Supported                  |
-| [Cursor](https://cursor.com/)                                 | Supported                  |
-| [Windsurf](https://codeium.com/windsurf)                      | Supported                  |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli)     | Supported                  |
-| [Cline](https://github.com/cline/cline)                       | Supported                  |
-| [Roo Code](https://github.com/RooCodeInc/Roo-Code)            | Supported                  |
-| [Continue](https://continue.dev/)                             | Supported                  |
-| [Amazon Q](https://aws.amazon.com/q/developer/)               | Supported                  |
-| [Augment Code](https://www.augmentcode.com/)                  | Supported                  |
-| [Aider](https://aider.chat/)                                  | Supported                  |
+```bash
+npm run dev           # next dev (http://localhost:3000)
+npm run build         # production build (output: standalone)
+npm run start         # serve the production build
+npm run lint          # ESLint
+npm run typecheck     # tsc --noEmit
+npm run check         # lint + typecheck + build
+npm run sync-products # one-time: download/refresh local product image manifest
+```
 
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) 24+
-- An AI coding agent (see [Supported Platforms](#supported-platforms))
-
-## Tech Stack
-
-- **Next.js 16** — App Router, React 19, TypeScript strict
-- **shadcn/ui** — Radix primitives + Tailwind CSS v4
-- **Tailwind CSS v4** — oklch design tokens
-- **Lucide React** — default icons (replaced by extracted SVGs during cloning)
-
-## How It Works
-
-The `/clone-website` skill runs a multi-phase pipeline:
-
-1. **Reconnaissance** — screenshots, design token extraction, interaction sweep (scroll, click, hover, responsive)
-2. **Foundation** — updates fonts, colors, globals, downloads all assets
-3. **Component Specs** — writes detailed spec files (`docs/research/components/`) with exact computed CSS values, states, behaviors, and content
-4. **Parallel Build** — dispatches builder agents in git worktrees, one per section/component
-5. **Assembly & QA** — merges worktrees, wires up the page, runs visual diff against the original
-
-Each builder agent receives the full component specification inline — exact `getComputedStyle()` values, interaction models, multi-state content, responsive breakpoints, and asset paths. No guessing.
-
-## Use Cases
-
-- **Platform migration** — rebuild a site you own from WordPress/Webflow/Squarespace into a modern Next.js codebase
-- **Lost source code** — your site is live but the repo is gone, the developer left, or the stack is legacy. Get the code back in a modern format
-- **Learning** — deconstruct how production sites achieve specific layouts, animations, and responsive behavior by working with real code
-
-## Not Intended For
-
-- **Phishing or impersonation** — this project must not be used for deceptive purposes, impersonation, or any activity that breaks the law.
-- **Passing off someone's design as your own** — logos, brand assets, and original copy belong to their owners.
-- **Violating terms of service** — some sites explicitly prohibit scraping or reproduction. Check first.
-
-## Project Structure
+## Project structure
 
 ```
 src/
-  app/              # Next.js routes
-  components/       # React components
-    ui/             # shadcn/ui primitives
-    icons.tsx       # Extracted SVG icons
-  lib/utils.ts      # cn() utility
-  types/            # TypeScript interfaces
-  hooks/            # Custom React hooks
+  app/                     # App Router routes
+    api/
+      availability/        # GET availability windows from Current RMS
+      catalog/             # GET full product catalog (24h ISR)
+      newsletter/          # POST newsletter signup → Mailchimp
+    rentals/[slug]/        # Category landing pages
+    search/                # Site-wide product search
+    about/  contact/  gallery/
+    layout.tsx  page.tsx  globals.css
+    sitemap.ts  robots.ts
+  components/
+    ui/                    # shadcn/ui primitives
+    Header.tsx Footer.tsx
+    HeroCarousel.tsx WelcomeSection.tsx ...   # homepage sections
+    CategoryProductGrid.tsx CartDrawer.tsx
+    NewsletterForm.tsx
+    icons.tsx              # extracted SVG icons
+  lib/
+    site-config.ts         # SITE constant — phone, email, locations, socials
+    current-rms.ts         # Current RMS API client + types
+    category-map.ts        # Slug ↔ Current RMS product group ID mapping
+    google-reviews.ts      # Google Places API client
+    cart-context.tsx       # Cart provider (client-side)
+    utils.ts               # cn() helper
+  hooks/  types/
 public/
-  images/           # Downloaded images from target
-  videos/           # Downloaded videos from target
-  seo/              # Favicons, OG images
+  images/  videos/  seo/   # downloaded assets, favicons, OG images
 docs/
-  research/         # Extraction output & component specs
-  design-references/ # Screenshots
+  research/                # design tokens, component inventory
+  design-references/       # screenshots
 scripts/
-  sync-agent-rules.sh  # Regenerate agent instruction files
-  sync-skills.mjs      # Regenerate /clone-website for all platforms
-AGENTS.md           # Agent instructions (single source of truth)
-CLAUDE.md           # Claude Code config (imports AGENTS.md)
-GEMINI.md           # Gemini CLI config (imports AGENTS.md)
+  download-product-images.mjs  # mirror Current RMS images locally
+  download-assets.mjs
 ```
 
-## Commands
+## Routes
 
-```bash
-npm run dev    # Start dev server
-npm run build  # Production build
-npm run lint   # ESLint check
-npm run typecheck # TypeScript check
-npm run check  # Run lint + typecheck + build
-```
+| Path | Purpose |
+|---|---|
+| `/` | Homepage (hero, featured events, design centers, on-trend, reviews, social, newsletter) |
+| `/rentals/[slug]` | Category page — `tents`, `chairs`, `tables`, `bars`, `tabletop`, `catering`, `decor`, `linens`, `lounge`, `lighting` |
+| `/search?q=…` | Cross-category product search by name/category/description |
+| `/gallery` | Photo gallery |
+| `/about` | About page |
+| `/contact` | Contact form + locations |
+| `/api/catalog` | Full product catalog (cached 24h) |
+| `/api/availability` | Per-product availability windows |
+| `/api/newsletter` | Mailchimp signup endpoint |
 
-### If using docker
+## Key conventions
 
-```bash
-docker compose up app --build # build and run the app
-docker compose up dev --build # run the app in dev mode on port 3001
-```
+- **All site-wide config (phone, email, addresses, socials) lives in `src/lib/site-config.ts`.** Don't hardcode contact info in components — import `SITE`.
+- **Brand orange is `#ff6c0e`.** Used in the floating header pill, headings, primary CTAs.
+- **Cart is client-side only** — `CartContext` collects items and the "Submit Quote" button is currently in TEST MODE (disabled). No payment integration is planned; the eventual flow is a quote-request handed to staff.
+- **Current RMS is read-only.** Enforced by comment in `src/lib/current-rms.ts`. No write operations should be added without explicit project sign-off.
+- **Images from Current RMS** are allowlisted in `next.config.ts` under `current-rms.s3.amazonaws.com`. Mirrored locally via `npm run sync-products` to avoid expired signed URLs.
+- **Security headers** (HSTS, X-Frame-Options, Permissions-Policy, etc.) are applied to all routes via `next.config.ts → headers()`.
 
-## Updating for Other Platforms
+## Branch strategy
 
-Two source-of-truth files power all platform support. Edit the source, then run the sync script:
+The client is evaluating two strategic directions side-by-side using Vercel preview URLs:
 
-| What                   | Source of truth                         | Sync command                       |
-| ---------------------- | --------------------------------------- | ---------------------------------- |
-| Project instructions   | `AGENTS.md`                             | `bash scripts/sync-agent-rules.sh` |
-| `/clone-website` skill | `.claude/skills/clone-website/SKILL.md` | `node scripts/sync-skills.mjs`     |
+- **`master`** (this branch) — full internal experience: `/rentals/[slug]` product pages, internal `/search`, global cart drawer, "Submit Quote (TEST MODE)" CTA. Stays untouched while comparison is in progress.
+- **`link-to-shop`** — pure marketing brochure that hands all commerce off to the existing storefront at `https://shop.accelrentals.com` (Rent Ant). Internal `/rentals` and `/search` redirect out via `next.config.ts`.
+- **`homemade-quote-flow`** *(not yet cut)* — homemade quote request flow, no payment, staff approves manually. Will be branched from `master` only if the client asks for it after reviewing `link-to-shop`.
 
-Each script regenerates the platform-specific copies automatically. Agents that read the source files natively need no regeneration.
+Each branch gets its own Vercel preview URL automatically. Do not merge `link-to-shop` into `master` until the client has chosen a direction.
 
+## Deployment
 
-## Star History
+- **Vercel project**: `accelwebsiteredo` (team `wyatt-hamiltons-projects`)
+- **Production domain**: TBD — currently `https://accel-website-template-zeta.vercel.app`. Update `SITE.url` in `src/lib/site-config.ts` and the Vercel project domains together when DNS is cut over.
+- **Preview deploys**: every push to any branch.
+- **Build command**: `npm run build` (Next.js standalone output).
 
-[![Star History Chart](https://api.star-history.com/svg?repos=JCodesMore/ai-website-cloner-template&type=Date)](https://star-history.com/#JCodesMore/ai-website-cloner-template&Date)
+## Handoff notes
+
+- The two-branch comparison determines which direction the codebase converges to. After the client picks one, the other branch should be deleted.
+- `SITE.url` and the Vercel domain must be updated together when production DNS is ready.
+- TEST MODE on the cart's "Submit Quote" button is intentional — see `CartDrawer.tsx`. Do not enable until the quote backend is built (Phase B / `homemade-quote-flow` branch).
+- The `docs/research/` folder contains the original design-extraction notes from the build phase. Useful for context, not load-bearing.
 
 ## License
 
-MIT
+Internal client work. All rights reserved.

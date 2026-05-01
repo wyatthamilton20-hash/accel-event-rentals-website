@@ -40,12 +40,26 @@ next-env.d.ts
 
 # Local settings (not project config)
 .claude/settings.local.json
-
-# User-specific skills (not part of the template)
 .claude/skills/customize/
 .claude/skills/release/
+.claude/worktrees/
+
+# AI coding-tool configs (generated locally from AGENTS.md via
+# scripts/sync-agent-rules.sh — not relevant to the dev team)
+.aider.conf.yml
+.amazonq/
+.augment/
+.clinerules
+.codex/
+.continue/
+.cursor/
+.gemini/
+.opencode/
+.windsurf/
+.windsurfrules
+.github/copilot-instructions.md
+.github/skills/
 
 # Local temp files
 temp/
-.claude/worktrees/
 .env*.local
