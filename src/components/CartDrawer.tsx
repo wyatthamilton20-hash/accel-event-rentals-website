@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { CloseIcon } from "@/components/icons";
 import { useState } from "react";
@@ -77,7 +78,7 @@ export function CartDrawer() {
             Test Mode — No orders will be placed
           </p>
           <p className="text-[11px] text-amber-700 mt-0.5">
-            This is a preview only. Quote requests are disabled.
+            Quote requests are reviewed by our team — no charges, no contracts at this stage.
           </p>
         </div>
 
@@ -229,17 +230,29 @@ export function CartDrawer() {
               </button>
             </div>
 
-            {/* DISABLED submit — test mode */}
-            <button
-              type="button"
-              disabled
-              className="w-full rounded-full bg-[#ccc] text-white text-[14px] font-bold py-4 cursor-not-allowed"
-              title="Quote submission is disabled in test mode"
-            >
-              Submit Quote Request (Disabled — Test Mode)
-            </button>
+            {/* Continue to review — enabled when cart has items + dates */}
+            {hasDates ? (
+              <Link
+                href="/quote/review"
+                onClick={() => setCartOpen(false)}
+                className="block w-full rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold py-4 text-center hover:opacity-90 transition-opacity cursor-pointer"
+              >
+                Continue → Review Quote
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full rounded-full bg-[#ccc] text-white text-[14px] font-bold py-4 cursor-not-allowed"
+                title="Pick event dates above to continue"
+              >
+                Continue → Review Quote
+              </button>
+            )}
             <p className="text-[10px] text-[#999] text-center mt-2">
-              Quote submission will be enabled when the site goes live.
+              {hasDates
+                ? "Review your details on the next step before sending."
+                : "Pick your event dates above to continue."}
             </p>
           </div>
         )}
