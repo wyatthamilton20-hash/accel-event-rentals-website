@@ -2,16 +2,18 @@ import Image from "next/image";
 import { FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import { CATEGORIES } from "@/lib/category-map";
-import { SITE } from "@/lib/site-config";
+import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
 interface FooterLink {
   label: string;
   href: string;
+  external?: boolean;
 }
 
 const rentalLinks: FooterLink[] = CATEGORIES.map((c) => ({
   label: c.label,
-  href: `/rentals/${c.slug}`,
+  href: shopCategoryUrl(c.slug),
+  external: true,
 }));
 
 const showroomLinks: FooterLink[] = SITE.locations.map((loc) => ({
@@ -62,7 +64,13 @@ function FooterLinkColumn({
       <h3 style={columnTitleStyle}>{title}</h3>
       <nav>
         {links.map((link) => (
-          <a key={link.label} href={link.href} className="footer-link" style={linkStyle}>
+          <a
+            key={link.label}
+            href={link.href}
+            className="footer-link"
+            style={linkStyle}
+            {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
             {link.label}
           </a>
         ))}

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { SITE } from "@/lib/site-config";
+import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "About | Accel Event Rentals",
@@ -97,12 +97,14 @@ export default function AboutPage() {
                 a quote, and our team will follow up personally to confirm
                 availability and details.
               </p>
-              <Link
-                href="/rentals/tents"
+              <a
+                href={shopCategoryUrl("tents")}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-block mt-8 px-8 py-4 rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold tracking-wider transition-colors hover:bg-[#e55d00]"
               >
-                SHOP RENTALS
-              </Link>
+                SHOP RENTALS ↗
+              </a>
             </div>
           </div>
         </section>

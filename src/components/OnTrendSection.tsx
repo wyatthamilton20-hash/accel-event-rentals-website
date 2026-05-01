@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES } from "@/lib/category-map";
+import { shopCategoryUrl } from "@/lib/site-config";
 
 interface CatalogProduct {
   id: number;
@@ -45,7 +45,7 @@ export function OnTrendSection() {
             Browse Our Rentals<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <p className="mt-3 text-[15px] text-[#555] max-w-[500px] mx-auto">
-            Tap a category to start building your quote.
+            Tap a category to shop on accelrentals.com.
           </p>
         </div>
 
@@ -53,9 +53,11 @@ export function OnTrendSection() {
           {CATEGORIES.map((cat) => {
             const imageUrl = imagesByLabel[cat.label];
             return (
-              <Link
+              <a
                 key={cat.slug}
-                href={`/rentals/${cat.slug}`}
+                href={shopCategoryUrl(cat.slug)}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-[#1a1a1a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6c0e] focus-visible:ring-offset-2"
               >
                 {imageUrl ? (
@@ -77,10 +79,10 @@ export function OnTrendSection() {
                     {cat.label}
                   </h3>
                   <p className="mt-1 text-white/85 text-xs sm:text-sm">
-                    Shop {cat.label.toLowerCase()} →
+                    Shop {cat.label.toLowerCase()} ↗
                   </p>
                 </div>
-              </Link>
+              </a>
             );
           })}
         </div>

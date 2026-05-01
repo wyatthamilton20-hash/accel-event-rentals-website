@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { shopCategoryUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Gallery | Accel Event Rentals",
@@ -68,12 +69,14 @@ export default function GalleryPage() {
             follow up to lock in the details.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/rentals/tents"
+            <a
+              href={shopCategoryUrl("tents")}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block px-8 py-4 rounded-full bg-[#111] text-white text-[14px] font-bold tracking-wider"
             >
-              SHOP RENTALS
-            </Link>
+              SHOP RENTALS ↗
+            </a>
             <Link
               href="/contact"
               className="inline-block px-8 py-4 rounded-full border-2 border-[#111] text-[#111] text-[14px] font-bold tracking-wider"

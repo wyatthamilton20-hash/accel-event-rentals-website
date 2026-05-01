@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { SITE } from "@/lib/site-config";
+import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Contact | Accel Event Rentals",
@@ -65,13 +65,15 @@ export default function ContactPage() {
 
             <div className="rounded-2xl bg-white border border-[#e5e5e5] p-8 text-center">
               <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#999]">Browse</p>
-              <Link
-                href="/rentals/tents"
+              <a
+                href={shopCategoryUrl("tents")}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="block mt-3 text-[20px] font-bold text-[#111] hover:opacity-70"
               >
-                Catalog
-              </Link>
-              <p className="mt-2 text-[13px] text-[#666]">Build a quote online, we&apos;ll follow up</p>
+                Catalog ↗
+              </a>
+              <p className="mt-2 text-[13px] text-[#666]">Shop our full rental catalog online</p>
             </div>
           </div>
         </section>
@@ -109,16 +111,18 @@ export default function ContactPage() {
               Ready to start planning<span style={{ color: "#ff6c0e" }}>?</span>
             </h2>
             <p className="mt-4 text-[15px] text-white/80 leading-[1.7]">
-              Browse our catalog, add items to a quote, pick your event dates,
-              and we&apos;ll check availability. A team member will follow up
-              personally to confirm and handle the details.
+              Shop our full rental catalog online, then reach out and a team
+              member will follow up personally to confirm dates, availability,
+              and the details.
             </p>
-            <Link
-              href="/rentals/tents"
+            <a
+              href={shopCategoryUrl("tents")}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block mt-8 px-8 py-4 rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold tracking-wider transition-colors hover:bg-[#e55d00]"
             >
-              BROWSE THE CATALOG
-            </Link>
+              BROWSE THE CATALOG ↗
+            </a>
           </div>
         </section>
       </main>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCategoryByLabel } from "@/lib/category-map";
+import { shopCategoryUrl } from "@/lib/site-config";
 import {
   SearchIcon,
   ChevronDownIcon,
@@ -380,11 +381,13 @@ export function Header() {
                 {categories.map((cat) => {
                   const firstWithImage = cat.products.find((p) => p.imageUrl);
                   const catDef = getCategoryByLabel(cat.label);
-                  const href = catDef ? `/rentals/${catDef.slug}` : "#";
+                  const href = shopCategoryUrl(catDef?.slug);
                   return (
-                    <Link
+                    <a
                       key={cat.label}
                       href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex flex-col items-center gap-3 rounded-xl p-3 transition-all hover:bg-[#f5f5f5] no-underline"
                       onClick={() => setOpenDropdown(null)}
                     >
@@ -410,7 +413,7 @@ export function Header() {
                       <span className="text-[11px] text-[#999]">
                         {cat.products.length} items
                       </span>
-                    </Link>
+                    </a>
                   );
                 })}
               </div>
@@ -461,14 +464,16 @@ export function Header() {
                   <div className="ml-3 mb-2 flex flex-col gap-1 border-l-2 border-[#eee] pl-3">
                     {categories.map((cat) => {
                       const catDef = getCategoryByLabel(cat.label);
-                      const href = catDef ? `/rentals/${catDef.slug}` : "#";
+                      const href = shopCategoryUrl(catDef?.slug);
                       return (
                         <a
                           key={cat.label}
                           href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]"
                         >
-                          {cat.label}
+                          {cat.label} ↗
                         </a>
                       );
                     })}
