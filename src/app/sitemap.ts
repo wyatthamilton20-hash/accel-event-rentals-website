@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE.url}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE.url}/gallery`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${SITE.url}/quote/review`, lastModified: now, changeFrequency: "monthly", priority: 0.3 },
   ];
 
   const rentalPaths: MetadataRoute.Sitemap = CATEGORIES.map((c) => ({
