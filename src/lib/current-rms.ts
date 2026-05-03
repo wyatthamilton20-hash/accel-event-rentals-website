@@ -231,13 +231,17 @@ export async function getProductsByIds(ids: number[]): Promise<Product[]> {
 // `createOpportunity` is gated behind `RMS_WRITE_ENABLED` and ships the
 // real fetch only when staff explicitly turn it on. Until then it either
 // throws (default) or dry-runs (logs the payload).
+//
+// See docs/current-rms-opportunity-schema.md for the full target payload.
+// The recommended live endpoint is POST /opportunities/checkout, which creates
+// the opportunity AND its line items atomically.
+
+import type { QuotePayload, ResolvedQuoteItem } from "./quote-types";
 
 export interface CreateOpportunityInput {
-  name: string;
-  starts_at: string;
-  ends_at: string;
-  member_id?: number;
-  custom_fields?: Record<string, unknown>;
+  quoteId: string;
+  payload: QuotePayload;
+  items: ResolvedQuoteItem[];
 }
 
 export interface CreateOpportunityResult {
@@ -254,21 +258,24 @@ export async function createOpportunity(
     );
   }
 
-  const body = { opportunity: input };
-
   if (process.env.RMS_WRITE_DRY_RUN === "true") {
     log.info(
       "rms_create_opportunity_dry_run",
-      { body: body as unknown as Record<string, unknown> },
+      {
+        quoteId: input.quoteId,
+        payload: input.payload as unknown as Record<string, unknown>,
+        items: input.items as unknown as Record<string, unknown>[],
+      },
       { pii: true }
     );
     return { id: `dry-run-${Date.now()}`, dryRun: true };
   }
 
-  // TODO: live write-back. When enabled, POST to:
-  //   `${BASE_URL}/opportunities` (e.g. https://api.current-rms.com/api/v1/opportunities)
-  // with auth headers X-SUBDOMAIN + X-AUTH-TOKEN and JSON body shaped as:
-  //   { opportunity: { name, starts_at, ends_at, member_id?, custom_fields? } }
-  // then parse the response and return the created opportunity id.
+  // TODO: live write-back. See docs/current-rms-opportunity-schema.md §11
+  // for the target payload shape. Recommended: POST /opportunities/checkout
+  // with `{ opportunity: {...}, items: [...] }` and headers X-SUBDOMAIN +
+  // X-AUTH-TOKEN. Caller passes raw form payload + resolved items; this
+  // function is responsible for member find-or-create, date conversion to
+  // ISO 8601 UTC, custom-field mapping, and item shape translation.
   throw new Error("createOpportunity live write-back is not implemented yet");
 }

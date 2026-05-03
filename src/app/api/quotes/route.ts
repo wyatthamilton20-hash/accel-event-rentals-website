@@ -11,7 +11,7 @@ import { getEmailProvider } from "@/lib/email";
 import {
   parseQuotePayload,
   type QuotePayload,
-  type QuoteCartItem,
+  type ResolvedQuoteItem,
 } from "@/lib/quote-types";
 import { quoteStore } from "@/lib/quote-store";
 
@@ -57,14 +57,10 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-interface ResolvedItem extends QuoteCartItem {
-  name: string;
-}
-
 function buildEmailBodies(args: {
   quoteId: string;
   payload: QuotePayload;
-  resolvedItems: ResolvedItem[];
+  resolvedItems: ResolvedQuoteItem[];
   conflicts: number[];
 }): { html: string; text: string } {
   const { quoteId, payload, resolvedItems, conflicts } = args;
@@ -327,7 +323,7 @@ export async function POST(request: Request) {
 
   // 8. Re-resolve product IDs
   const validProducts = await buildValidProductSet();
-  const resolvedItems: ResolvedItem[] = [];
+  const resolvedItems: ResolvedQuoteItem[] = [];
   for (const item of payload.items) {
     const name = validProducts.get(item.id);
     if (!name) {
@@ -413,30 +409,12 @@ export async function POST(request: Request) {
     });
   }
 
-  // 13. Optional RMS write
+  // 13. Optional RMS write — best-effort, never fails the request.
   if (process.env.RMS_WRITE_ENABLED === "true") {
     try {
-      // Phase C may not have shipped — best-effort, never fails the request.
-      const rms = (await import("@/lib/current-rms")) as unknown as {
-        createOpportunity?: (args: {
-          quoteId: string;
-          payload: QuotePayload;
-          items: ResolvedItem[];
-        }) => Promise<unknown>;
-      };
-      if (typeof rms.createOpportunity === "function") {
-        await rms.createOpportunity({
-          quoteId,
-          payload,
-          items: resolvedItems,
-        });
-        log.info("rms_write_succeeded", { quoteId });
-      } else {
-        log.info("rms_write_skipped", {
-          quoteId,
-          reason: "createOpportunity_not_implemented",
-        });
-      }
+      const { createOpportunity } = await import("@/lib/current-rms");
+      await createOpportunity({ quoteId, payload, items: resolvedItems });
+      log.info("rms_write_succeeded", { quoteId });
     } catch (err) {
       log.error("rms_write_failed", { quoteId, err: String(err) });
     }

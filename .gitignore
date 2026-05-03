@@ -45,3 +45,6 @@ next-env.d.ts
 # Local temp files
 temp/
 .env*.local
+
+# Inspection artifacts (may contain real PII from Current RMS)
+docs/current-rms-opportunity-inspection.json

@@ -4,6 +4,11 @@ export interface QuoteCartItem {
   notes?: string;
 }
 
+/** Cart item after we've re-resolved it against the live Current RMS catalog. */
+export interface ResolvedQuoteItem extends QuoteCartItem {
+  name: string;
+}
+
 export interface QuotePayload {
   name: string;
   email: string;

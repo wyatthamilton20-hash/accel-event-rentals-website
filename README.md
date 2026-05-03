@@ -83,7 +83,10 @@ src/
 public/
   images/  videos/  seo/   # downloaded assets, favicons, OG images
 scripts/
-  download-product-images.mjs  # mirror Current RMS images locally
+  download-product-images.mjs           # mirror Current RMS images locally
+  inspect-current-rms-opportunity.mjs   # read-only probe — dump live opportunity/member shapes
+docs/
+  current-rms-opportunity-schema.md     # reference for building the homemade quote flow
 ```
 
 ## Routes
