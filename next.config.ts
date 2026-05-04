@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         hostname: "current-rms.s3.amazonaws.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.rentant.co.uk",
+        pathname: "/media/**",
+      },
     ],
   },
   async headers() {

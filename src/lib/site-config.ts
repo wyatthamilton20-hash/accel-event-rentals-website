@@ -5,6 +5,8 @@
  * warehouse + Maui showroom). Update here if anything changes.
  */
 
+import { getCategoryBySlug } from "@/lib/category-map";
+
 export const SITE = {
   name: "Accel Event Rentals",
   // Swap to the production domain (e.g. https://accelrentals.com) once the
@@ -41,8 +43,16 @@ export const SITE = {
   },
 } as const;
 
-// Today returns the shop hub. Future deep-link upgrade (slug → numeric ID)
-// is a single function-body change here.
-export function shopCategoryUrl(_slug?: string): string {
+// Deep-links into the Rent Ant storefront when the slug resolves to a known
+// category, otherwise falls back to the storefront's category index.
+// Pattern: `/categories/{numericId}/{Name}` — Name is URL-encoded but kept
+// human-readable (the storefront uses the path segment for SEO).
+export function shopCategoryUrl(slug?: string): string {
+  if (slug) {
+    const cat = getCategoryBySlug(slug);
+    if (cat) {
+      return `${SITE.shopUrl}/categories/${cat.shopCategoryId}/${encodeURIComponent(cat.shopCategoryName)}`;
+    }
+  }
   return `${SITE.shopUrl}/categories`;
 }

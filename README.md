@@ -75,7 +75,7 @@ src/
   lib/
     site-config.ts         # SITE constant — phone, email, locations, socials
     current-rms.ts         # Current RMS API client + types
-    category-map.ts        # Slug ↔ Current RMS product group ID mapping
+    category-map.ts        # Slug ↔ Current RMS group IDs + shop storefront deep-link mapping
     google-reviews.ts      # Google Places API client
     cart-context.tsx       # Cart provider (client-side)
     utils.ts               # cn() helper
@@ -91,7 +91,7 @@ scripts/
 | Path | Purpose |
 |---|---|
 | `/` | Homepage (hero, featured events, design centers, on-trend, reviews, social, newsletter) |
-| `/rentals/[slug]` | Category page — `tents`, `chairs`, `tables`, `bars`, `tabletop`, `catering`, `decor`, `linens`, `lounge`, `lighting` |
+| `/rentals/[slug]` | Category page — `tents`, `chairs`, `tables`, `flooring`, `bar`, `lounge`, `lighting`, `linens`, `decor`, `catering`, `plateware`, `glassware`, `flatware`, `chargers`, `bar-fronts`. On `link-to-shop`, this 308-redirects to the shop's category index (see `next.config.ts`). |
 | `/search?q=…` | Cross-category product search by name/category/description |
 | `/gallery` | Photo gallery |
 | `/about` | About page |
