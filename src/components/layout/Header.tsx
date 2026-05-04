@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { getCategoryByLabel } from "@/lib/category-map";
+import { CATEGORIES } from "@/lib/category-map";
 import { shopCategoryUrl } from "@/lib/site-config";
 import {
   SearchIcon,
@@ -14,18 +14,6 @@ import {
   CloseIcon,
 } from "@/components/icons";
 import { SITE } from "@/lib/site-config";
-
-interface CatalogProduct {
-  id: number;
-  name: string;
-  imageUrl: string | null;
-  thumbUrl: string | null;
-}
-
-interface NavCategory {
-  label: string;
-  products: CatalogProduct[];
-}
 
 const STATIC_LINKS: { label: string; href: string }[] = [
   { label: "Gallery", href: "/gallery" },
@@ -39,7 +27,6 @@ export function Header() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileDropdown, setMobileDropdown] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [categories, setCategories] = useState<NavCategory[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
 
   function submitSearch(e: React.FormEvent<HTMLFormElement>) {
@@ -67,23 +54,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Fetch live catalog from Current RMS
-  useEffect(() => {
-    fetch("/api/catalog")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.categories) {
-          setCategories(
-            data.categories.map((c: { label: string; products: CatalogProduct[] }) => ({
-              label: c.label,
-              products: c.products,
-            }))
-          );
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   useEffect(() => {
     if (!openDropdown) return;
     function handleClick(e: MouseEvent) {
@@ -97,7 +67,7 @@ export function Header() {
 
   return (
     <>
-      {openDropdown === "Rentals" && categories.length > 0 && (
+      {openDropdown === "Rentals" && (
         <div
           className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
           onClick={() => setOpenDropdown(null)}
@@ -350,7 +320,7 @@ export function Header() {
         </div>
 
         {/* Mega menu panel — shows all rental categories */}
-        {openDropdown === "Rentals" && categories.length > 0 && (
+        {openDropdown === "Rentals" && (
           <div
             className="mx-auto mt-3 overflow-hidden bg-white"
             style={{
@@ -362,45 +332,34 @@ export function Header() {
               Rentals
             </div>
             <div className="px-8 pb-10">
-              <div className="mx-auto grid max-w-[1100px] gap-6" style={{ gridTemplateColumns: `repeat(${Math.min(categories.length, 5)}, 1fr)` }}>
-                {categories.map((cat) => {
-                  const firstWithImage = cat.products.find((p) => p.imageUrl);
-                  const catDef = getCategoryByLabel(cat.label);
-                  const href = shopCategoryUrl(catDef?.slug);
-                  return (
-                    <a
-                      key={cat.label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center gap-3 rounded-xl p-3 transition-all hover:bg-[#f5f5f5] no-underline"
-                      onClick={() => setOpenDropdown(null)}
-                    >
-                      <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full border-2 border-[#eee] bg-[#f5f5f5]">
-                        {firstWithImage?.imageUrl ? (
-                          <Image
-                            src={firstWithImage.imageUrl}
-                            alt={cat.label}
-                            fill
-                            sizes="100px"
-                            className="object-cover"
-                            unoptimized
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center text-[11px] text-[#aaa] font-medium">
-                            {cat.label}
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-center text-[13px] font-semibold leading-snug text-[#333]">
-                        {cat.label}
-                      </span>
-                      <span className="text-[11px] text-[#999]">
-                        {cat.products.length} items
-                      </span>
-                    </a>
-                  );
-                })}
+              <div className="mx-auto grid max-w-[1100px] grid-cols-4 gap-6 lg:grid-cols-8">
+                {CATEGORIES.map((cat) => (
+                  <a
+                    key={cat.slug}
+                    href={shopCategoryUrl(cat.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-3 rounded-xl p-3 transition-all hover:bg-[#f5f5f5] no-underline"
+                    onClick={() => setOpenDropdown(null)}
+                  >
+                    <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full border-2 border-[#eee] bg-[#f5f5f5]">
+                      <Image
+                        src={cat.imageUrl}
+                        alt={cat.label}
+                        fill
+                        sizes="100px"
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <span className="text-center text-[13px] font-semibold leading-snug text-[#333]">
+                      {cat.label}
+                    </span>
+                    <span className="text-[11px] text-[#999]">
+                      Shop {cat.label.toLowerCase()} ↗
+                    </span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -447,21 +406,17 @@ export function Header() {
                 </button>
                 {mobileDropdown === "Rentals" && (
                   <div className="ml-3 mb-2 flex flex-col gap-1 border-l-2 border-[#eee] pl-3">
-                    {categories.map((cat) => {
-                      const catDef = getCategoryByLabel(cat.label);
-                      const href = shopCategoryUrl(catDef?.slug);
-                      return (
-                        <a
-                          key={cat.label}
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]"
-                        >
-                          {cat.label} ↗
-                        </a>
-                      );
-                    })}
+                    {CATEGORIES.map((cat) => (
+                      <a
+                        key={cat.slug}
+                        href={shopCategoryUrl(cat.slug)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="py-1.5 text-[13px] text-[#666] transition-colors hover:text-[#111]"
+                      >
+                        {cat.label} ↗
+                      </a>
+                    ))}
                   </div>
                 )}
               </div>

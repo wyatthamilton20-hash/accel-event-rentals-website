@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fetchGoogleReviews } from "@/lib/google-reviews";
-import { ReviewsCarousel } from "@/components/sections/ReviewsCarousel";
+import { ReviewsGrid } from "@/components/sections/ReviewsGrid";
 
 export async function WelcomeSection() {
   const reviewsData = await fetchGoogleReviews();
@@ -53,7 +53,7 @@ export async function WelcomeSection() {
               marginBottom: 32,
             }}
           />
-          <ReviewsCarousel
+          <ReviewsGrid
             reviews={reviewsData.reviews}
             averageRating={reviewsData.averageRating}
             totalReviews={reviewsData.totalReviews}

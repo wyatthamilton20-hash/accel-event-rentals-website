@@ -1,25 +1,15 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import type { GoogleReview } from "@/types/reviews";
 import {
   StarFilledIcon,
   StarEmptyIcon,
   GoogleIcon,
   QuoteIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
 } from "@/components/icons";
 
-const CARD_WIDTH = 300;
-const CARD_GAP = 16;
-
-function getVisibleCount(): number {
-  if (typeof window === "undefined") return 3;
-  if (window.innerWidth >= 1100) return 3;
-  if (window.innerWidth >= 700) return 2;
-  return 1;
-}
+const VISIBLE_COUNT = 5;
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -71,7 +61,7 @@ function AuthorInitials({ name }: { name: string }) {
   );
 }
 
-function ReviewCard({ review, width }: { review: GoogleReview; width: number }) {
+function ReviewCard({ review }: { review: GoogleReview }) {
   const [expanded, setExpanded] = useState(false);
   const truncateAt = 180;
   const needsTruncation = review.text.length > truncateAt;
@@ -83,8 +73,6 @@ function ReviewCard({ review, width }: { review: GoogleReview; width: number }) 
   return (
     <div
       style={{
-        width: width,
-        flexShrink: 0,
         backgroundColor: "#ffffff",
         borderRadius: 20,
         padding: "24px 20px 20px",
@@ -93,18 +81,17 @@ function ReviewCard({ review, width }: { review: GoogleReview; width: number }) 
         flexDirection: "column",
         gap: 16,
         fontFamily: "'Poppins', sans-serif",
+        height: "100%",
       }}
     >
-      {/* Quote icon */}
       <QuoteIcon
         style={{ width: 28, height: 28, color: "#e0d6c8", flexShrink: 0 }}
       />
 
-      {/* Review text */}
       <p
         style={{
-          fontSize: 14,
-          lineHeight: 1.7,
+          fontSize: 13,
+          lineHeight: 1.6,
           color: "#444",
           margin: 0,
           flex: 1,
@@ -120,7 +107,7 @@ function ReviewCard({ review, width }: { review: GoogleReview; width: number }) 
               border: "none",
               color: "#111",
               fontWeight: 600,
-              fontSize: 13,
+              fontSize: 12,
               cursor: "pointer",
               padding: "0 0 0 4px",
               fontFamily: "inherit",
@@ -131,19 +118,20 @@ function ReviewCard({ review, width }: { review: GoogleReview; width: number }) 
         )}
       </p>
 
-      {/* Stars */}
       <StarRating rating={review.rating} />
 
-      {/* Author */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <AuthorInitials name={review.authorName} />
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div
             style={{
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: 600,
               color: "#111",
               lineHeight: 1.3,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
             }}
           >
             {review.authorName}
@@ -165,56 +153,24 @@ function ReviewCard({ review, width }: { review: GoogleReview; width: number }) 
   );
 }
 
-interface ReviewsCarouselProps {
+interface ReviewsGridProps {
   reviews: GoogleReview[];
   averageRating: number;
   totalReviews: number;
   placeId: string;
 }
 
-export function ReviewsCarousel({
+export function ReviewsGrid({
   reviews,
   averageRating,
   totalReviews,
   placeId,
-}: ReviewsCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(3);
-  const [cardWidth, setCardWidth] = useState(CARD_WIDTH);
-
-  useEffect(() => {
-    function handleResize() {
-      const count = getVisibleCount();
-      setVisibleCount(count);
-      setCardWidth(window.innerWidth < 400 ? window.innerWidth - 48 : CARD_WIDTH);
-      setCurrentIndex((prev) => {
-        const max = reviews.length - count;
-        return prev > max ? Math.max(0, max) : prev;
-      });
-    }
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [reviews.length]);
-
-  const maxIndex = Math.max(0, reviews.length - visibleCount);
-  const showArrows = reviews.length > visibleCount;
-
-  const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  }, [maxIndex]);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  }, [maxIndex]);
-
-  const slideOffset = currentIndex * (cardWidth + CARD_GAP);
-
+}: ReviewsGridProps) {
+  const visibleReviews = reviews.slice(0, VISIBLE_COUNT);
   const googleMapsUrl = `https://search.google.com/local/reviews?placeid=${placeId}`;
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }}>
-      {/* Header: Google icon + rating + count */}
       <div
         style={{
           display: "flex",
@@ -242,71 +198,12 @@ export function ReviewsCarousel({
         </div>
       </div>
 
-      {/* Carousel */}
-      <div style={{ position: "relative" }}>
-        <div style={{ overflow: "hidden" }}>
-          <div
-            style={{
-              display: "flex",
-              gap: CARD_GAP,
-              transform: `translateX(-${slideOffset}px)`,
-              transition: "transform 0.5s ease",
-            }}
-          >
-            {reviews.map((review, i) => (
-              <ReviewCard key={`${review.authorName}-${i}`} review={review} width={cardWidth} />
-            ))}
-          </div>
-        </div>
-
-        {/* Arrows */}
-        {showArrows && (
-          <>
-            <button
-              type="button"
-              onClick={handlePrev}
-              aria-label="Previous review"
-              className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer"
-              style={{
-                left: 4,
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                backgroundColor: "#ffffff",
-                border: "none",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              }}
-            >
-              <ChevronLeftIcon
-                className="h-4 w-4"
-                style={{ color: "#333" }}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              aria-label="Next review"
-              className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer"
-              style={{
-                right: 4,
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                backgroundColor: "#ffffff",
-                border: "none",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-              }}
-            >
-              <ChevronRightIcon
-                className="h-4 w-4"
-                style={{ color: "#333" }}
-              />
-            </button>
-          </>
-        )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {visibleReviews.map((review, i) => (
+          <ReviewCard key={`${review.authorName}-${i}`} review={review} />
+        ))}
       </div>
 
-      {/* Google attribution link */}
       <div style={{ marginTop: 20, textAlign: "center" }}>
         <a
           href={googleMapsUrl}
