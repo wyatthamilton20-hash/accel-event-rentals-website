@@ -7,6 +7,15 @@ import { US_STATES } from "@/lib/us-states";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const US_COUNTRY_ID = 3;
+const ATTENDEES_MAX = 100_000;
+
+function todayLocalISO(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -99,7 +108,9 @@ export function RentalInquiryForm() {
   function validateStep2(): string {
     if (!data.eventType) return "Please choose an event type.";
     if (!data.eventDate) return "Please choose your event date.";
+    if (data.eventDate < todayLocalISO()) return "Please choose a date in the future.";
     if (!/^\d+$/.test(data.attendees) || Number(data.attendees) < 1) return "Please enter the number of attendees.";
+    if (Number(data.attendees) > ATTENDEES_MAX) return "Please enter a realistic number of attendees.";
     if (!data.island) return "Please choose an island.";
     if (!data.billingStreet.trim() || !data.billingCity.trim() || !data.billingState.trim() || !data.billingPostcode.trim()) {
       return "Please complete the billing address.";
@@ -227,6 +238,7 @@ export function RentalInquiryForm() {
                   onChange={(e) => update("firstName", e.target.value)}
                   className={inputClass}
                   autoComplete="given-name"
+                  maxLength={80}
                   required
                 />
               </Field>
@@ -237,6 +249,7 @@ export function RentalInquiryForm() {
                   onChange={(e) => update("lastName", e.target.value)}
                   className={inputClass}
                   autoComplete="family-name"
+                  maxLength={80}
                   required
                 />
               </Field>
@@ -265,6 +278,7 @@ export function RentalInquiryForm() {
                   onChange={(e) => update("companyName", e.target.value)}
                   className={inputClass}
                   autoComplete="organization"
+                  maxLength={200}
                   required
                 />
               </Field>
@@ -329,6 +343,7 @@ export function RentalInquiryForm() {
                 value={data.eventDate}
                 onChange={(e) => update("eventDate", e.target.value)}
                 className={inputClass}
+                min={todayLocalISO()}
                 required
               />
             </Field>
@@ -336,6 +351,7 @@ export function RentalInquiryForm() {
               <input
                 type="number"
                 min={1}
+                max={ATTENDEES_MAX}
                 value={data.attendees}
                 onChange={(e) => update("attendees", e.target.value.replace(/\D/g, ""))}
                 className={inputClass}
@@ -362,6 +378,7 @@ export function RentalInquiryForm() {
               onChange={(e) => update("billingStreet", e.target.value)}
               className={inputClass}
               autoComplete="street-address"
+              maxLength={200}
               required
             />
           </Field>
@@ -373,6 +390,7 @@ export function RentalInquiryForm() {
                 onChange={(e) => update("billingCity", e.target.value)}
                 className={inputClass}
                 autoComplete="address-level2"
+                maxLength={80}
                 required
               />
             </Field>
@@ -383,6 +401,7 @@ export function RentalInquiryForm() {
                 onChange={(e) => update("billingState", e.target.value)}
                 className={inputClass}
                 autoComplete="address-level1"
+                maxLength={80}
                 required
               />
             </Field>
@@ -395,6 +414,7 @@ export function RentalInquiryForm() {
                 onChange={(e) => update("billingPostcode", e.target.value)}
                 className={inputClass}
                 autoComplete="postal-code"
+                maxLength={20}
                 required
               />
             </Field>
@@ -427,6 +447,7 @@ export function RentalInquiryForm() {
                 onChange={(e) => update("email", e.target.value)}
                 className={inputClass}
                 autoComplete="email"
+                maxLength={254}
                 required
               />
             </Field>
@@ -437,6 +458,7 @@ export function RentalInquiryForm() {
                 onChange={(e) => update("phone", e.target.value)}
                 className={inputClass}
                 autoComplete="tel"
+                maxLength={40}
                 required
               />
             </Field>

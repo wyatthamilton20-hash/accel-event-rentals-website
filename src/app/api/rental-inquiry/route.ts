@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { COUNTRIES } from "@/lib/countries";
 import {
   OPT_CUSTOMER_TYPE_DIRECT_END_CLIENT,
   OPT_EVENT_CORPORATE,
@@ -15,6 +16,9 @@ import {
   createOpportunity,
   createOrganisation,
 } from "@/lib/current-rms-write";
+
+const COUNTRY_IDS = new Set<number>(COUNTRIES.map((c) => c.id));
+const ATTENDEES_MAX = 100_000;
 
 /**
  * Rental Inquiry submission — POST.
@@ -83,7 +87,7 @@ interface InquiryPayload {
 }
 
 function isString(v: unknown, max = 500): v is string {
-  return typeof v === "string" && v.length > 0 && v.length <= max;
+  return typeof v === "string" && v.trim().length > 0 && v.length <= max;
 }
 
 function parseAndValidate(body: unknown):
@@ -98,7 +102,7 @@ function parseAndValidate(body: unknown):
   if (b._hp_company_url && String(b._hp_company_url).length > 0) {
     return { ok: false, status: 200, error: "honeypot" };
   }
-  if (typeof b._t === "number" && b._t < MIN_FORM_TIME_MS) {
+  if (typeof b._t !== "number" || b._t < MIN_FORM_TIME_MS) {
     return { ok: false, status: 400, error: "Submitted too quickly" };
   }
 
@@ -124,7 +128,7 @@ function parseAndValidate(body: unknown):
     if (!isString(b.companyName, 200)) {
       return { ok: false, status: 400, error: "Please enter the company name" };
     }
-    if (typeof b.companyCountryId !== "number") {
+    if (typeof b.companyCountryId !== "number" || !COUNTRY_IDS.has(b.companyCountryId)) {
       return { ok: false, status: 400, error: "Please choose a company country" };
     }
     companyName = (b.companyName as string).trim();
@@ -146,8 +150,19 @@ function parseAndValidate(body: unknown):
   if (!isString(b.eventDate, 20) || !/^\d{4}-\d{2}-\d{2}$/.test(b.eventDate as string)) {
     return { ok: false, status: 400, error: "Please choose an event date" };
   }
+  const parsedEventDate = new Date(b.eventDate as string);
+  if (
+    isNaN(parsedEventDate.getTime()) ||
+    parsedEventDate.getUTCFullYear() < new Date().getUTCFullYear()
+  ) {
+    return { ok: false, status: 400, error: "Please choose an event date in the future" };
+  }
   if (!isString(b.attendees, 12) || !/^\d+$/.test(b.attendees as string)) {
     return { ok: false, status: 400, error: "Please enter the number of attendees" };
+  }
+  const attendeesN = Number(b.attendees);
+  if (attendeesN < 1 || attendeesN > ATTENDEES_MAX) {
+    return { ok: false, status: 400, error: "Please enter a realistic number of attendees" };
   }
   if (!isString(b.island, 40)) {
     return { ok: false, status: 400, error: "Please choose an island" };
@@ -157,7 +172,8 @@ function parseAndValidate(body: unknown):
     !isString(b.billingCity, 80) ||
     !isString(b.billingState, 80) ||
     !isString(b.billingPostcode, 20) ||
-    typeof b.billingCountryId !== "number"
+    typeof b.billingCountryId !== "number" ||
+    !COUNTRY_IDS.has(b.billingCountryId)
   ) {
     return { ok: false, status: 400, error: "Please complete the billing address" };
   }
