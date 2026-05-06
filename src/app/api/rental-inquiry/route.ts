@@ -232,28 +232,34 @@ function buildPayloads(d: InquiryPayload) {
     ? `${subject}\n\n${d.message.trim()}`
     : subject;
 
+  const address = {
+    name: fullName,
+    street: d.billingStreet,
+    city: d.billingCity,
+    county: d.billingState,
+    postcode: d.billingPostcode,
+    countryId: d.billingCountryId,
+  };
+
   return {
     org: {
       name: orgName,
       customerTypeId: OPT_CUSTOMER_TYPE_DIRECT_END_CLIENT,
+      address,
     },
     contact: (organisationId: number) => ({
       organisationId,
       name: fullName,
       email: d.email,
       phone: d.phone,
-      address: {
-        name: fullName,
-        street: d.billingStreet,
-        city: d.billingCity,
-        county: d.billingState,
-        postcode: d.billingPostcode,
-        countryId: d.billingCountryId,
-      },
+      address,
       customerTypeId: OPT_CUSTOMER_TYPE_DIRECT_END_CLIENT,
     }),
-    opportunity: (contactId: number, billingAddressId: number) => ({
-      contactId,
+    // memberId = Organisation id (NOT contact id). Live opp 19157 has
+    // member_id = Org id; the Contact appears in the participants array.
+    // billingAddressId = the Org's primary_address id.
+    opportunity: (memberId: number, billingAddressId: number) => ({
+      memberId,
       billingAddressId,
       subject,
       startsAt: `${d.eventDate}T09:00:00.000Z`,
@@ -320,12 +326,13 @@ export async function POST(request: Request) {
   const payloads = buildPayloads(parsed.data);
 
   let orgId: number | null = null;
+  let orgAddressId: number | null = null;
   let contactId: number | null = null;
-  let primaryAddressId: number | null = null;
 
   try {
     const org = await createOrganisation(payloads.org);
     orgId = org.id;
+    orgAddressId = org.primaryAddressId;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[rental-inquiry] step=organisation FAIL`);
@@ -339,7 +346,6 @@ export async function POST(request: Request) {
   try {
     const contact = await createContact(payloads.contact(orgId));
     contactId = contact.id;
-    primaryAddressId = contact.primaryAddressId;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[rental-inquiry] step=contact FAIL`);
@@ -353,7 +359,7 @@ export async function POST(request: Request) {
 
   try {
     const opp = await createOpportunity(
-      payloads.opportunity(contactId, primaryAddressId)
+      payloads.opportunity(orgId, orgAddressId)
     );
     console.log(
       `[rental-inquiry] success org=${orgId} contact=${contactId} opp=${opp.id}`

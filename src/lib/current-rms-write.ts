@@ -108,9 +108,19 @@ async function crmsPost<T>(endpoint: string, body: unknown): Promise<T> {
 export interface OrgInput {
   name: string;
   customerTypeId: number;
+  address: {
+    name: string;
+    street: string;
+    city: string;
+    county: string;
+    postcode: string;
+    countryId: number;
+  };
 }
 
-export async function createOrganisation(input: OrgInput): Promise<{ id: number }> {
+export async function createOrganisation(
+  input: OrgInput
+): Promise<{ id: number; primaryAddressId: number }> {
   const body = {
     member: {
       name: input.name,
@@ -122,13 +132,37 @@ export async function createOrganisation(input: OrgInput): Promise<{ id: number 
       membership: {
         owned_by: DEFAULT_OWNER_ID,
       },
+      // The Org gets its own primary_address — separate record from the
+      // Contact's. Live web-form Org (30985) and Contact (30984) both
+      // had populated primary_address records with different ids; the
+      // Opportunity's billing_address_id points at the Org's.
+      primary_address: {
+        name: input.address.name,
+        street: input.address.street,
+        city: input.address.city,
+        county: input.address.county,
+        postcode: input.address.postcode,
+        country_id: input.address.countryId,
+        type_id: ADDRESS_TYPE_PRIMARY,
+      },
       custom_fields: {
         customer_type: input.customerTypeId,
       },
     },
   };
-  const res = await crmsPost<{ member: { id: number } }>("members", body);
-  return { id: res.member.id };
+  const res = await crmsPost<{
+    member: {
+      id: number;
+      primary_address?: { id: number };
+      addresses?: Array<{ id: number }>;
+    };
+  }>("members", body);
+  const primaryAddressId =
+    res.member.primary_address?.id ?? res.member.addresses?.[0]?.id;
+  if (!primaryAddressId) {
+    throw new Error("Current RMS did not return a primary address id on organisation create");
+  }
+  return { id: res.member.id, primaryAddressId };
 }
 
 export interface ContactInput {
@@ -195,7 +229,7 @@ export async function createContact(
 }
 
 export interface OpportunityInput {
-  contactId: number;
+  memberId: number;
   billingAddressId: number;
   subject: string;
   startsAt: string; // ISO datetime
@@ -215,7 +249,7 @@ export async function createOpportunity(
 ): Promise<{ id: number }> {
   const body = {
     opportunity: {
-      member_id: input.contactId,
+      member_id: input.memberId,
       billing_address_id: input.billingAddressId,
       subject: input.subject,
       starts_at: input.startsAt,
