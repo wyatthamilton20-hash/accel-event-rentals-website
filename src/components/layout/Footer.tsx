@@ -62,7 +62,13 @@ function FooterLinkColumn({
       <nav
         style={
           columns === 2
-            ? { display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "16px" }
+            ? {
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gridTemplateRows: `repeat(${Math.ceil(links.length / 2)}, auto)`,
+                gridAutoFlow: "column",
+                columnGap: "16px",
+              }
             : undefined
         }
       >
