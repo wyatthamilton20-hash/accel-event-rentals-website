@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SITE, shopCategoryUrl } from "@/lib/site-config";
@@ -8,7 +7,7 @@ import { SITE, shopCategoryUrl } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: "About | Accel Event Rentals",
   description:
-    "Hawaii's premier event rental company, serving Oahu and Maui with premium tents, furnishings, and tabletop collections for weddings, corporate events, and celebrations.",
+    "Hawaii's premier event rental company, serving Oahu with premium tents, furnishings, and tabletop collections for weddings, corporate events, and celebrations.",
 };
 
 export default function AboutPage() {
@@ -47,8 +46,8 @@ export default function AboutPage() {
             As Hawaii&apos;s premier go-to for all event rental needs, Accel
             Event Rentals is dedicated to successful events. Through impeccable
             customer service, Hawaii vendors know Accel Events &amp; Tents is
-            there for them — from intimate beachfront weddings on Oahu to
-            large-scale corporate galas on Maui.
+            there for them, from intimate beachfront weddings to large-scale
+            corporate galas across Oahu.
           </p>
           <p className="mt-6 text-[16px] sm:text-[18px] leading-[1.7] text-[#444]">
             Our inventory of tents, furnishings, tabletop, and decor is
@@ -91,14 +90,14 @@ export default function AboutPage() {
                 What we do<span style={{ color: "#ff6c0e" }}>.</span>
               </h2>
               <p className="mt-5 text-[16px] leading-[1.75] text-[#444]">
-                Weddings, corporate events, birthdays, anniversaries — whatever
+                Weddings, corporate events, birthdays, anniversaries. Whatever
                 the occasion, we show up with the rentals, the expertise, and
                 the aloha to make it unforgettable. Browse our catalog, build
                 a quote, and our team will follow up personally to confirm
                 availability and details.
               </p>
               <a
-                href={shopCategoryUrl("tents")}
+                href={shopCategoryUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-8 px-8 py-4 rounded-full bg-[#ff6c0e] text-white text-[14px] font-bold tracking-wider transition-colors hover:bg-[#e55d00]"
@@ -109,38 +108,54 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="max-w-[1100px] mx-auto px-6 sm:px-8 mt-20">
-          <h2 className="text-center text-[#111] font-bold leading-[1.1]"
-              style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            Visit a showroom<span style={{ color: "#ff6c0e" }}>.</span>
-          </h2>
-          <div className="mt-10 grid sm:grid-cols-2 gap-6">
-            {SITE.locations.map((loc) => (
-              <div key={loc.name} className="rounded-2xl border border-[#e5e5e5] bg-white p-8">
-                <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#999]">
-                  {loc.island}
-                </p>
-                <h3 className="mt-1 text-[22px] font-bold text-[#111]">{loc.name}</h3>
-                <p className="mt-3 text-[14px] leading-[1.7] text-[#555] whitespace-pre-line">
-                  {loc.address}
-                </p>
-                <p className="mt-3 text-[14px] text-[#555]">
-                  <a href={`tel:${loc.phone.replace(/\D/g, "")}`} className="hover:text-[#111]">
-                    {loc.phone}
-                  </a>
-                </p>
+        <section className="max-w-[1200px] mx-auto px-6 sm:px-8 mt-20 sm:mt-24">
+          <div className="text-center mb-10 sm:mb-14">
+            <p className="text-[12px] font-bold uppercase tracking-[0.25em] text-[#ff6c0e]">
+              From our events
+            </p>
+            <h2 className="mt-3 text-[#111] font-bold leading-[1.1]"
+                style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
+              A glimpse of the aloha<span style={{ color: "#ff6c0e" }}>.</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            {[
+              { src: "/images/about/about-1.jpeg", alt: "Event rental detail" },
+              { src: "/images/about/about-2.jpeg", alt: "Tabletop styling" },
+              { src: "/images/about/about-3.jpeg", alt: "Reception decor" },
+            ].map((img) => (
+              <div key={img.src} className="relative aspect-[2/3] rounded-2xl overflow-hidden">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(min-width: 640px) 33vw, 100vw"
+                  className="object-cover"
+                />
               </div>
             ))}
           </div>
-          <div className="mt-10 text-center">
-            <Link
-              href="/contact"
-              className="inline-block px-8 py-4 rounded-full border-2 border-[#ff6c0e] text-[#ff6c0e] text-[14px] font-bold tracking-wider transition-colors hover:bg-[#ff6c0e] hover:text-white"
-            >
-              CONTACT US
-            </Link>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6">
+            {[
+              { src: "/images/about/about-4.jpeg", alt: "Event setup on Oahu" },
+              { src: "/images/about/about-5.png", alt: "Tented event" },
+              { src: "/images/about/about-6.png", alt: "Outdoor celebration" },
+            ].map((img) => (
+              <div key={img.src} className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="object-cover"
+                />
+              </div>
+            ))}
           </div>
         </section>
+
       </main>
       <Footer />
     </>

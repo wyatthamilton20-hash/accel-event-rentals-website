@@ -3,18 +3,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { shopCategoryUrl } from "@/lib/site-config";
+import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: "Gallery | Accel Event Rentals",
+  title: "Inspiration | Accel Event Rentals",
   description:
-    "Real events, real inspiration. See how our tents, lounge furniture, and tabletop collections come together for weddings, corporate events, and celebrations across Oahu and Maui.",
+    "Real events, real inspiration. See how our tents, lounge furniture, and tabletop collections come together for weddings, corporate events, and celebrations across Oahu.",
 };
 
-const galleryImages = Array.from({ length: 8 }, (_, i) => ({
-  src: `/images/hero/${i + 1}.jpg`,
-  alt: `Accel Event Rentals featured event ${i + 1}`,
-}));
+// Inspiration photos mirrored from accelrentals.com/galleries/ via
+// scripts/download-inspiration-photos.mjs. Re-run that script to refresh.
+const galleryImages: { src: string; alt: string }[] = [
+  { src: "/images/inspiration/four-seasons.png",      alt: "Four Seasons wedding tent and reception by Accel Event Rentals" },
+  { src: "/images/inspiration/kualoa-ranch.jpeg",     alt: "Kualoa Ranch outdoor event by Accel Event Rentals" },
+  { src: "/images/inspiration/ashley-goodwin.png",    alt: "Wedding styled by Ashley Goodwin Photos with Accel rentals" },
+  { src: "/images/inspiration/desiree-leilani.png",   alt: "Event styled by Desiree Leilani Photos with Accel rentals" },
+  { src: "/images/inspiration/india-pearl.png",       alt: "Event styled by India Pearl Photos with Accel rentals" },
+  { src: "/images/inspiration/jessica-sullivan.png",  alt: "Event styled by Jessica Sullivan Photography with Accel rentals" },
+  { src: "/images/inspiration/molly-caskey.png",      alt: "Event styled by Molly Caskey with Accel rentals" },
+  { src: "/images/inspiration/outdoor.png",           alt: "Outdoor event by Accel Event Rentals" },
+  { src: "/images/inspiration/tented-wedding.jpg",    alt: "Tented wedding reception by Accel Event Rentals" },
+  { src: "/images/inspiration/wedding-tent-1.png",    alt: "Wedding tent setup by Accel Event Rentals" },
+  { src: "/images/inspiration/wedding-tent-2.png",    alt: "Wedding tent setup by Accel Event Rentals" },
+  { src: "/images/inspiration/lighting.png",          alt: "Event lighting by Accel Event Rentals" },
+  { src: "/images/inspiration/lighting-fixtures.png", alt: "Lighting fixtures by Accel Event Rentals" },
+  { src: "/images/inspiration/lights.png",            alt: "String lights by Accel Event Rentals" },
+  { src: "/images/inspiration/photo-7.jpeg",          alt: "Featured Accel Event Rentals setup" },
+];
 
 export default function GalleryPage() {
   return (
@@ -35,27 +50,35 @@ export default function GalleryPage() {
           </p>
         </section>
 
-        <section className="max-w-[1200px] mx-auto px-3 sm:px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {galleryImages.map((img, i) => {
-              const isTall = i % 5 === 0 || i % 5 === 3;
-              return (
-                <div
-                  key={img.src}
-                  className={`relative overflow-hidden rounded-xl bg-[#eee] ${
-                    isTall ? "aspect-[3/4]" : "aspect-square"
-                  }`}
+        <section className="max-w-[1600px] mx-auto px-4 sm:px-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            {galleryImages.map((img) => (
+              <a
+                key={img.src}
+                href={SITE.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${img.alt} — see more on Instagram`}
+                className="group relative overflow-hidden rounded-2xl bg-[#eee] aspect-[3/2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6c0e] focus-visible:ring-offset-2"
+              >
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+                  quality={90}
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <span
+                  className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/35 group-hover:opacity-100"
+                  aria-hidden="true"
                 >
-                  <Image
-                    src={img.src}
-                    alt={img.alt}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-              );
-            })}
+                  <span className="text-white text-[12px] font-bold uppercase tracking-[0.25em]">
+                    View on Instagram ↗
+                  </span>
+                </span>
+              </a>
+            ))}
           </div>
         </section>
 

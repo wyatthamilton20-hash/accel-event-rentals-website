@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { CATEGORIES } from "@/lib/category-map";
-import { shopCategoryUrl } from "@/lib/site-config";
+import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
 export function OnTrendSection() {
   return (
@@ -13,7 +13,16 @@ export function OnTrendSection() {
             Browse Our Rentals<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <p className="mt-3 text-[15px] text-[#555] max-w-[500px] mx-auto">
-            Tap a category to shop on accelrentals.com.
+            Tap a category to shop on{" "}
+            <a
+              href={SITE.shopUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#111] underline-offset-4 hover:underline hover:text-[#ff6c0e] transition-colors"
+            >
+              shop.accelrentals.com
+            </a>
+            .
           </p>
         </div>
 
@@ -46,6 +55,21 @@ export function OnTrendSection() {
               </div>
             </a>
           ))}
+
+          {/* Mobile-only filler — fills the orphan cell when CATEGORIES.length is odd */}
+          <a
+            href="/contact"
+            className="group relative block aspect-[4/5] overflow-hidden rounded-2xl bg-[#ff6c0e] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#111] focus-visible:ring-offset-2 sm:hidden"
+          >
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+              <h3 className="text-white text-lg font-bold tracking-tight leading-tight">
+                Need something else?
+              </h3>
+              <p className="mt-2 text-white/90 text-xs font-semibold uppercase tracking-wider">
+                Contact us ↗
+              </p>
+            </div>
+          </a>
         </div>
       </div>
     </section>

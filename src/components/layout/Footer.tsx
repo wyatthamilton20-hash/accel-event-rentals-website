@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
-import { NewsletterForm } from "@/components/forms/NewsletterForm";
+import { FacebookIcon, InstagramIcon } from "@/components/icons";
 import { CATEGORIES } from "@/lib/category-map";
 import { SITE, shopCategoryUrl } from "@/lib/site-config";
 
@@ -16,23 +15,19 @@ const rentalLinks: FooterLink[] = CATEGORIES.map((c) => ({
   external: true,
 }));
 
-const showroomLinks: FooterLink[] = SITE.locations.map((loc) => ({
-  label: loc.island === "Oahu" ? "Oahu (HQ)" : loc.island,
-  href: "/contact",
-}));
-
+// Mirrors the header nav (Rentals dropdown + STATIC_LINKS) so users see the
+// same 5 sections in the same order in the footer.
 const quickLinks: FooterLink[] = [
+  { label: "Rentals", href: `${SITE.shopUrl}/categories`, external: true },
+  { label: "Inspiration", href: "/gallery" },
   { label: "About Us", href: "/about" },
-  { label: "Contact Us", href: "/contact" },
-  { label: "Gallery", href: "/gallery" },
-  { label: "Featured Events", href: "/gallery" },
+  { label: "Resources", href: "/resources" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const socialLinks = [
   { icon: FacebookIcon, label: "Facebook", href: SITE.social.facebook },
   { icon: InstagramIcon, label: "Instagram", href: SITE.social.instagram },
-  { icon: YoutubeIcon, label: "YouTube", href: SITE.social.youtube },
-  { icon: PinterestIcon, label: "Pinterest", href: SITE.social.pinterest },
 ] as const;
 
 const columnTitleStyle: React.CSSProperties = {
@@ -55,14 +50,22 @@ const linkStyle: React.CSSProperties = {
 function FooterLinkColumn({
   title,
   links,
+  columns = 1,
 }: {
   title: string;
   links: FooterLink[];
+  columns?: 1 | 2;
 }) {
   return (
     <div>
       <h3 style={columnTitleStyle}>{title}</h3>
-      <nav>
+      <nav
+        style={
+          columns === 2
+            ? { display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "16px" }
+            : undefined
+        }
+      >
         {links.map((link) => (
           <a
             key={link.label}
@@ -93,14 +96,60 @@ export function Footer() {
         }}
         className="footer-grid"
       >
-        <FooterLinkColumn title="Rentals" links={rentalLinks} />
-        <FooterLinkColumn title="Showrooms" links={showroomLinks} />
-        <FooterLinkColumn title="Quick Links" links={quickLinks} />
+        <FooterLinkColumn title="Rentals" links={rentalLinks} columns={2} />
+        <div>
+          <h3 style={columnTitleStyle}>Hours</h3>
+          {SITE.locations.map((loc) => (
+            <div key={loc.island} style={{ marginBottom: "16px" }}>
+              <p style={{ fontSize: "14px", fontWeight: 600, color: "#111111", margin: 0 }}>
+                {loc.island}
+              </p>
+              {loc.hours.split(" · ").map((line) => (
+                <p key={line} style={{ fontSize: "14px", color: "#555555", lineHeight: 1.6, margin: 0 }}>
+                  {line}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+        <FooterLinkColumn title="Resources" links={quickLinks} />
 
-        {/* Column 4: Connect With Us */}
+        {/* Get in Touch — address, email, phone */}
+        <div>
+          <h3 style={columnTitleStyle}>Get in Touch</h3>
+          {SITE.locations[0] && (
+            <p
+              style={{
+                fontSize: "14px",
+                color: "#555555",
+                lineHeight: 1.6,
+                margin: "0 0 12px",
+                whiteSpace: "pre-line",
+              }}
+            >
+              {SITE.locations[0].address}
+            </p>
+          )}
+          <a
+            href={`mailto:${SITE.email}`}
+            className="footer-link"
+            style={{ ...linkStyle, lineHeight: 1.7 }}
+          >
+            {SITE.email}
+          </a>
+          <a
+            href={`tel:${SITE.phone.replace(/\D/g, "")}`}
+            className="footer-link"
+            style={{ ...linkStyle, lineHeight: 1.7 }}
+          >
+            {SITE.phone}
+          </a>
+        </div>
+
+        {/* Column 5: Connect With Us */}
         <div>
           <h3 style={columnTitleStyle}>Connect With Us</h3>
-          <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
+          <div style={{ display: "flex", gap: "12px" }}>
             {socialLinks.map(({ icon: Icon, label, href }) => {
               const external = /^https?:/.test(href);
               return (
@@ -128,19 +177,6 @@ export function Footer() {
               );
             })}
           </div>
-
-          <p
-            style={{
-              fontSize: "14px",
-              color: "#555555",
-              marginTop: "0",
-              marginBottom: "8px",
-            }}
-          >
-            Join Our Newsletter
-          </p>
-
-          <NewsletterForm variant="footer" />
         </div>
       </div>
 
@@ -184,7 +220,7 @@ export function Footer() {
         }
         @media (min-width: 1024px) {
           .footer-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-columns: repeat(5, 1fr) !important;
           }
         }
       `}</style>

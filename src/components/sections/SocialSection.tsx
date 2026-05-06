@@ -1,19 +1,26 @@
 "use client";
 
-import { ArrowRightIcon, FacebookIcon, InstagramIcon, YoutubeIcon, PinterestIcon } from "@/components/icons";
+import { ArrowRightIcon, FacebookIcon, InstagramIcon } from "@/components/icons";
 import { SITE } from "@/lib/site-config";
 
 const socialLinks = [
   { icon: FacebookIcon, href: SITE.social.facebook, label: "Facebook" },
   { icon: InstagramIcon, href: SITE.social.instagram, label: "Instagram" },
-  { icon: YoutubeIcon, href: SITE.social.youtube, label: "YouTube" },
-  { icon: PinterestIcon, href: SITE.social.pinterest, label: "Pinterest" },
 ] as const;
 
-const feedImages = Array.from({ length: 8 }, (_, i) => ({
-  src: `/images/hero/${(i % 8) + 1}.jpg`,
-  alt: `Social feed photo ${i + 1}`,
-}));
+const feedImages = [
+  { src: "/images/social/_DSC2706.jpg",                        alt: "Accel Event Rentals event" },
+  { src: "/images/social/Venue5_AER.png",                      alt: "Accel Event Rentals venue setup" },
+  { src: "/images/social/9.10.22_sunset.jpg",                  alt: "Accel Event Rentals sunset event" },
+  { src: "/images/social/IMG_0892.jpg",                        alt: "Accel Event Rentals event" },
+  { src: "/images/social/1.png",                               alt: "Accel Event Rentals event" },
+  { src: "/images/social/_DSC2719.jpg",                        alt: "Accel Event Rentals event" },
+  { src: "/images/social/OB3A0757.jpg",                        alt: "Accel Event Rentals event" },
+  { src: "/images/social/Four-Seasons_Accel-Events-Tents.png", alt: "Four Seasons tented event by Accel Events & Tents" },
+  { src: "/images/social/2.png",                               alt: "Accel Event Rentals event" },
+  { src: "/images/social/Venue6_AER.png",                      alt: "Accel Event Rentals venue setup" },
+  { src: "/images/social/2025-08-11---sneak-21.jpg",           alt: "Accel Event Rentals event sneak peek" },
+];
 
 export function SocialSection() {
   return (
@@ -81,9 +88,13 @@ export function SocialSection() {
       <div className="overflow-hidden mt-10 sm:mt-12 w-full">
         <div className="marquee-track flex gap-2 w-max">
           {[...feedImages, ...feedImages].map((img, index) => (
-            <div
+            <a
               key={`${img.alt}-${index}`}
-              className="w-[200px] sm:w-[260px] h-[200px] sm:h-[300px] shrink-0 overflow-hidden"
+              href={SITE.social.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="View on Instagram"
+              className="block w-[200px] sm:w-[260px] h-[200px] sm:h-[300px] shrink-0 overflow-hidden transition-opacity hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6c0e] focus-visible:ring-offset-2"
             >
               <img
                 src={img.src}
@@ -91,7 +102,7 @@ export function SocialSection() {
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-            </div>
+            </a>
           ))}
         </div>
       </div>

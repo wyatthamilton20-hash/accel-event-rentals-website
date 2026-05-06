@@ -16,7 +16,7 @@ export function FeaturedEventsSection() {
         fill
         sizes="100vw"
         className="object-cover"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, objectPosition: "50% 70%" }}
       />
 
       {/* Gradient Overlay */}
@@ -48,7 +48,7 @@ export function FeaturedEventsSection() {
             lineHeight: 1.1,
           }}
         >
-          Featured Events<span style={{ color: "#ff6c0e" }}>.</span>
+          Inspiration<span style={{ color: "#ff6c0e" }}>.</span>
         </h2>
 
         {/* Subtitle */}

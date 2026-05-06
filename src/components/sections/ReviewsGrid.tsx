@@ -167,7 +167,10 @@ export function ReviewsGrid({
   placeId,
 }: ReviewsGridProps) {
   const visibleReviews = reviews.slice(0, VISIBLE_COUNT);
-  const googleMapsUrl = `https://search.google.com/local/reviews?placeid=${placeId}`;
+  const googleMapsUrl =
+    placeId && placeId !== "demo"
+      ? `https://search.google.com/local/reviews?placeid=${placeId}`
+      : "https://www.google.com/maps/search/?api=1&query=Accel+Event+Rentals+Honolulu+HI";
 
   return (
     <div style={{ fontFamily: "'Poppins', sans-serif" }}>

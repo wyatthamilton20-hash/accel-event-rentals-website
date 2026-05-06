@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CATEGORIES } from "@/lib/category-map";
 import { shopCategoryUrl } from "@/lib/site-config";
 import {
   SearchIcon,
   ChevronDownIcon,
-  UserIcon,
   LocationIcon,
   MenuIcon,
   CloseIcon,
@@ -16,12 +16,51 @@ import {
 import { SITE } from "@/lib/site-config";
 
 const STATIC_LINKS: { label: string; href: string }[] = [
-  { label: "Gallery", href: "/gallery" },
+  { label: "Inspiration", href: "/gallery" },
   { label: "About Us", href: "/about" },
+  { label: "Resources", href: "/resources" },
   { label: "Contact", href: "/contact" },
 ];
 
+// Multi-word patterns first so "bar fronts" doesn't collapse into "bar".
+const SITE_CONTENT_ROUTES: Array<{ keywords: string[]; href: string }> = [
+  { keywords: ["tent guide", "tent resource"], href: "/resources/tent-guide" },
+  { keywords: ["linen draping", "draping"], href: "/resources/linen-draping" },
+  { keywords: ["linen sizing", "linen size"], href: "/resources/linen-sizing" },
+  { keywords: ["table seating", "seating chart"], href: "/resources/table-seating" },
+  { keywords: ["will call", "willcall", "delivery fee", "delivery", "pickup", "set up", "setup"], href: "/resources/will-call-delivery-setup" },
+  { keywords: ["faq", "faqs", "question", "deposit", "cancel", "cancellation", "damage", "policy"], href: "/resources/faqs" },
+  { keywords: ["resource", "guide"], href: "/resources" },
+  { keywords: ["hour", "open", "schedule", "phone", "call", "contact", "email", "location", "address", "warehouse"], href: "/contact" },
+  { keywords: ["about", "team", "history", "story"], href: "/about" },
+  { keywords: ["gallery", "photo", "portfolio", "inspiration"], href: "/gallery" },
+];
+
+function resolveSearchUrl(rawQuery: string): { url: string; external: boolean } {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return { url: `${SITE.shopUrl}/categories`, external: true };
+
+  for (const entry of SITE_CONTENT_ROUTES) {
+    if (entry.keywords.some((k) => q.includes(k))) {
+      return { url: entry.href, external: false };
+    }
+  }
+
+  // Sort categories by label length desc so "Bar Fronts" beats "Bar".
+  const sorted = [...CATEGORIES].sort((a, b) => b.label.length - a.label.length);
+  for (const cat of sorted) {
+    const label = cat.label.toLowerCase();
+    const singular = label.replace(/s$/, "");
+    if (q.includes(label) || q.includes(singular)) {
+      return { url: shopCategoryUrl(cat.slug), external: true };
+    }
+  }
+
+  return { url: `${SITE.shopUrl}/categories`, external: true };
+}
+
 export function Header() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -35,10 +74,12 @@ export function Header() {
     const q = String(data.get("q") ?? "").trim();
     setMobileMenuOpen(false);
     setMobileSearchOpen(false);
-    const url = q
-      ? `${SITE.shopUrl}/search?q=${encodeURIComponent(q)}`
-      : `${SITE.shopUrl}/categories`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    const { url, external } = resolveSearchUrl(q);
+    if (external) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      router.push(url);
+    }
   }
 
   useEffect(() => {
@@ -131,7 +172,7 @@ export function Header() {
                 <input
                   type="text"
                   name="q"
-                  placeholder="What are you looking for?"
+                  placeholder="Search Products"
                   className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-white outline-none placeholder:text-white/70"
                   tabIndex={scrolled ? -1 : 0}
                 />
@@ -150,7 +191,7 @@ export function Header() {
             <div className="hidden items-center gap-4 md:flex">
               {/* Text links — fade out on scroll */}
               <div
-                className="flex items-center gap-4 transition-[opacity,transform] duration-500 ease-in-out"
+                className="flex items-center gap-3 transition-[opacity,transform] duration-500 ease-in-out"
                 style={{
                   opacity: scrolled ? 0 : 1,
                   transform: scrolled ? "scaleX(0)" : "scaleX(1)",
@@ -161,20 +202,9 @@ export function Header() {
                 }}
               >
                 <a
-                  href="/gallery"
-                  className="cursor-pointer text-sm font-extrabold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
-                >
-                  Gallery
-                </a>
-                <a
-                  href="/about"
-                  className="flex cursor-pointer items-center gap-1 text-sm font-extrabold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
-                >
-                  About
-                  <ChevronDownIcon className="size-3" />
-                </a>
-                <a
-                  href="/contact"
+                  href={SITE.locations[0].mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex cursor-pointer items-center gap-1 text-sm font-semibold text-white transition-opacity hover:opacity-70 whitespace-nowrap"
                 >
                   <LocationIcon className="size-4" />
@@ -197,14 +227,6 @@ export function Header() {
                 <SearchIcon className="size-5" />
               </a>
 
-              {/* Always visible icons */}
-              <button
-                type="button"
-                className="cursor-pointer text-white transition-opacity hover:opacity-70"
-                aria-label="Account"
-              >
-                <UserIcon className="size-5" />
-              </button>
               {/* Hamburger — fades in on scroll */}
               <button
                 type="button"
@@ -231,7 +253,7 @@ export function Header() {
                   <input
                     type="text"
                     name="q"
-                    placeholder="Search..."
+                    placeholder="Search Products"
                     autoFocus
                     className="w-[140px] sm:w-[180px] border-none bg-transparent px-3 py-1.5 text-[16px] text-white outline-none placeholder:text-white/70"
                   />
@@ -307,13 +329,22 @@ export function Header() {
                     </a>
                   ))}
                 </nav>
-                <a
-                  href={`tel:${SITE.phone.replace(/\D/g, "")}`}
-                  className="shrink-0 whitespace-nowrap text-sm font-semibold text-white transition-opacity hover:opacity-70"
-                  tabIndex={scrolled ? -1 : 0}
-                >
-                  Call Us: {SITE.phone}
-                </a>
+                <div className="flex items-center gap-3">
+                  <a
+                    href={`mailto:${SITE.email}`}
+                    className="flex cursor-pointer items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#111] whitespace-nowrap transition-colors hover:bg-[#111] hover:text-white"
+                    tabIndex={scrolled ? -1 : 0}
+                  >
+                    {SITE.email}
+                  </a>
+                  <a
+                    href={`tel:${SITE.phone.replace(/\D/g, "")}`}
+                    className="flex cursor-pointer items-center rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#111] whitespace-nowrap transition-colors hover:bg-[#111] hover:text-white"
+                    tabIndex={scrolled ? -1 : 0}
+                  >
+                    {SITE.phone}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -379,7 +410,7 @@ export function Header() {
               <input
                 type="text"
                 name="q"
-                placeholder="What are you looking for?"
+                placeholder="Search Products"
                 className="w-full border-none bg-transparent px-4 py-2 text-[16px] sm:text-[13px] text-[#111] outline-none placeholder:text-[#999]"
               />
               <button
@@ -428,7 +459,7 @@ export function Header() {
             </nav>
             <div className="mt-4 flex flex-col gap-3 border-t border-[#eee] pt-4">
               <a href="/gallery" className="text-sm font-extrabold text-[#111]">
-                Gallery
+                Inspiration
               </a>
               <a
                 href="/about"
@@ -438,11 +469,19 @@ export function Header() {
                 <ChevronDownIcon className="size-3" />
               </a>
               <a
-                href="/contact"
+                href={SITE.locations[0].mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-1 text-sm font-semibold text-[#111]"
               >
                 <LocationIcon className="size-4" />
                 Oahu
+              </a>
+              <a
+                href={`mailto:${SITE.email}`}
+                className="text-sm font-semibold text-[#111] break-all"
+              >
+                Email: {SITE.email}
               </a>
               <a
                 href={`tel:${SITE.phone.replace(/\D/g, "")}`}

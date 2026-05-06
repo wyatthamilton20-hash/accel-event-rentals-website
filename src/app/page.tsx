@@ -4,7 +4,7 @@ import { OnTrendSection } from "@/components/sections/OnTrendSection";
 import { WelcomeSection } from "@/components/sections/WelcomeSection";
 import { FeaturedEventsSection } from "@/components/sections/FeaturedEventsSection";
 import { SocialSection } from "@/components/sections/SocialSection";
-import { EmailSignupSection } from "@/components/sections/EmailSignupSection";
+import { RentalInquirySection } from "@/components/sections/RentalInquirySection";
 import { Footer } from "@/components/layout/Footer";
 import { SectionMarker } from "@/components/dev/SectionMarker";
 
@@ -26,7 +26,7 @@ export default function Home() {
           <WelcomeSection />
         </div>
         <div className="relative">
-          <SectionMarker num={4} label="Featured Events" />
+          <SectionMarker num={4} label="Inspiration" />
           <FeaturedEventsSection />
         </div>
         <div className="relative">
@@ -34,8 +34,8 @@ export default function Home() {
           <SocialSection />
         </div>
         <div className="relative">
-          <SectionMarker num={6} label="Newsletter" />
-          <EmailSignupSection />
+          <SectionMarker num={6} label="Quote Form" />
+          <RentalInquirySection />
         </div>
       </main>
       <div className="relative">

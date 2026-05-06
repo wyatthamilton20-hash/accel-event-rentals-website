@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
 
-const SLIDE_COUNT = 8;
+const SLIDE_COUNT = 5;
 const AUTO_ADVANCE_MS = 5000;
 const TRANSITION_DURATION = "1s";
 const SHRINK_DISTANCE = 400; // px of scroll over which the shrink happens
@@ -106,6 +106,17 @@ export function HeroCarousel() {
             />
           </div>
         ))}
+
+        {/* Brand overlay */}
+        <div className="pointer-events-none absolute inset-0 z-[5] bg-gradient-to-b from-black/30 via-transparent to-black/50" />
+        <div className="pointer-events-none absolute inset-0 z-[5] flex flex-col items-center justify-center px-6 text-center text-white">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+            Accel Event Rentals
+          </h1>
+          <p className="mt-3 text-base sm:text-lg md:text-xl font-medium tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
+            Laulima. Ho’okipa. Pono.
+          </p>
+        </div>
 
         {/* Left arrow */}
         <button

@@ -1,6 +1,6 @@
 # Accel Event Rentals — Website
 
-Marketing + product-discovery site for [Accel Event Rentals](https://accelrentals.com) (Oahu & Maui). Pulls the live product catalog from Current RMS, surfaces it under `/rentals`, and routes inquiries through a contact form and newsletter signup.
+Marketing + product-discovery site for [Accel Event Rentals](https://accelrentals.com) (Oahu). Pulls the live product catalog from Current RMS, surfaces it under `/rentals`, and routes inquiries through a rental inquiry form on the homepage and contact page.
 
 ## Tech stack
 
@@ -9,7 +9,6 @@ Marketing + product-discovery site for [Accel Event Rentals](https://accelrental
 - **Hosting**: Vercel (project `accelwebsiteredo`)
 - **Catalog data**: Current RMS REST API (read-only)
 - **Reviews**: Google Places API (New)
-- **Newsletter**: Mailchimp
 - **Live chat**: HeyGabby widget (loaded site-wide in `app/layout.tsx`)
 - **Node**: ≥ 24
 
@@ -30,14 +29,12 @@ All vars live in `.env.local` for development and in the Vercel project for prev
 | Variable | Purpose | Required for |
 |---|---|---|
 | `CURRENT_RMS_SUBDOMAIN` | Current RMS account subdomain | Live product catalog (`/rentals`, `/search`, header mega-menu) |
-| `CURRENT_RMS_API_KEY` | Current RMS API token (read-only scope) | Same as above |
+| `CURRENT_RMS_API_KEY` | Current RMS API token. **Read scope** for catalog. **Write scope** also required for `/api/rental-inquiry` (creates Member + Opportunity records). | Live product catalog + rental inquiry form |
 | `GOOGLE_PLACES_API_KEY` | Google Places (New) API key | Live reviews in Welcome section |
 | `GOOGLE_PLACE_ID` | Place ID for Accel's Honolulu listing | Same as above |
-| `MAILCHIMP_API_KEY` | Mailchimp API key (`<hex>-<dc>` format) | Newsletter signup |
-| `MAILCHIMP_LIST_ID` | Audience/list ID | Newsletter signup |
-| `MAILCHIMP_DC` | Mailchimp data-center suffix (e.g. `us14`) | Newsletter signup |
+| `RENTAL_INQUIRY_DRY_RUN` | Set to `1` to bypass Current RMS writes — the form validates and the route logs the constructed payload, but no records are created. Use locally / on previews. Leave unset in production. | Local dev / staging without polluting RMS |
 
-If Mailchimp vars are unset, `/api/newsletter` returns 503 and the form shows a friendly fallback. If Current RMS vars are unset during build, pages render with empty product grids rather than failing.
+If Current RMS vars are unset, `/api/rental-inquiry` returns 503 and the form shows a friendly "we can't take inquiries online right now" message. If Current RMS vars are unset during build, pages render with empty product grids rather than failing.
 
 ## Scripts
 
@@ -59,7 +56,7 @@ src/
     api/
       availability/        # GET availability windows from Current RMS
       catalog/             # GET full product catalog (24h ISR)
-      newsletter/          # POST newsletter signup → Mailchimp
+      rental-inquiry/      # POST contact form → Current RMS Org+Contact+Opportunity
     rentals/[slug]/        # Category landing pages
     search/                # Site-wide product search
     about/  contact/  gallery/
@@ -70,7 +67,6 @@ src/
     Header.tsx Footer.tsx
     HeroCarousel.tsx WelcomeSection.tsx ...   # homepage sections
     CategoryProductGrid.tsx CartDrawer.tsx
-    NewsletterForm.tsx
     icons.tsx              # extracted SVG icons
   lib/
     site-config.ts         # SITE constant — phone, email, locations, socials
@@ -90,22 +86,29 @@ scripts/
 
 | Path | Purpose |
 |---|---|
-| `/` | Homepage (hero, featured events, design centers, on-trend, reviews, social, newsletter) |
+| `/` | Homepage (hero, browse rentals, welcome, inspiration, social, rental inquiry form) |
 | `/rentals/[slug]` | Category page — `tents`, `chairs`, `tables`, `flooring`, `bar`, `lounge`, `lighting`, `linens`, `decor`, `catering`, `plateware`, `glassware`, `flatware`, `chargers`, `bar-fronts`. On `link-to-shop`, this 308-redirects to the shop's category index (see `next.config.ts`). |
 | `/search?q=…` | Cross-category product search by name/category/description |
 | `/gallery` | Photo gallery |
 | `/about` | About page |
 | `/contact` | Contact form + locations |
+| `/resources` | Resources hub — tile grid linking to planning guides |
+| `/resources/faqs` | Frequently asked questions (delivery, deposits, setup, cancellations, etc.) |
+| `/resources/tent-guide` | Tent sizing chart, tent styles, and site/permit/power planning |
+| `/resources/will-call-delivery-setup` | The three fulfillment options — pickup, delivery, and setup/breakdown |
+| `/resources/linen-draping` | Drop-length reference (lap/mid/floor/puddle) for round, rectangular, cocktail tables |
+| `/resources/linen-sizing` | Cheat sheet pairing each table size with the right linen size |
+| `/resources/table-seating` | Comfortable and max guest counts per table, plus spacing tips |
 | `/api/catalog` | Full product catalog (cached 24h) |
 | `/api/availability` | Per-product availability windows |
-| `/api/newsletter` | Mailchimp signup endpoint |
+| `/api/rental-inquiry` | Rental inquiry form submission. Creates Organisation + Contact + Opportunity in Current RMS. Honeypot, min-time, and per-IP rate-limited. |
 
 ## Key conventions
 
 - **All site-wide config (phone, email, addresses, socials) lives in `src/lib/site-config.ts`.** Don't hardcode contact info in components — import `SITE`.
 - **Brand orange is `#ff6c0e`.** Used in the floating header pill, headings, primary CTAs.
 - **Cart is client-side only** — `CartContext` collects items and the "Submit Quote" button is currently in TEST MODE (disabled). No payment integration is planned; the eventual flow is a quote-request handed to staff.
-- **Current RMS is read-only.** Enforced by comment in `src/lib/current-rms.ts`. No write operations should be added without explicit project sign-off.
+- **Current RMS reads and writes are separated.** `src/lib/current-rms.ts` is read-only by contract (enforced by file-header comment); `src/lib/current-rms-write.ts` holds the rental-inquiry write helpers. Don't add writes to the read-only file.
 - **Images from Current RMS** are allowlisted in `next.config.ts` under `current-rms.s3.amazonaws.com`. Mirrored locally via `npm run sync-products` to avoid expired signed URLs.
 - **Security headers** (HSTS, X-Frame-Options, Permissions-Policy, etc.) are applied to all routes via `next.config.ts → headers()`.
 

@@ -155,22 +155,6 @@ export function InstagramIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function YoutubeIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z" />
-    </svg>
-  );
-}
-
-export function PinterestIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
-      <path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.93s-.36-.72-.36-1.78c0-1.67.97-2.91 2.17-2.91 1.02 0 1.52.77 1.52 1.69 0 1.03-.66 2.57-1 4-.28 1.2.6 2.17 1.78 2.17 2.13 0 3.77-2.25 3.77-5.5 0-2.87-2.06-4.88-5.01-4.88-3.41 0-5.42 2.56-5.42 5.2 0 1.03.4 2.13.89 2.73.1.12.11.22.08.34l-.33 1.36c-.05.22-.18.27-.41.16-1.54-.72-2.5-2.96-2.5-4.77 0-3.88 2.82-7.44 8.14-7.44 4.27 0 7.59 3.04 7.59 7.12 0 4.25-2.68 7.67-6.39 7.67-1.25 0-2.42-.65-2.82-1.42l-.77 2.93c-.28 1.08-1.04 2.44-1.55 3.26A12 12 0 1 0 12 0z" />
-    </svg>
-  );
-}
-
 export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

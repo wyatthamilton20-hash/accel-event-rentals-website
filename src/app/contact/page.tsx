@@ -3,11 +3,12 @@ import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SITE, shopCategoryUrl } from "@/lib/site-config";
+import { RentalInquiryForm } from "./RentalInquiryForm";
 
 export const metadata: Metadata = {
   title: "Contact | Accel Event Rentals",
   description:
-    "Get in touch with Accel Event Rentals on Oahu or Maui. Call, email, or visit our showrooms to plan your next event.",
+    "Get in touch with Accel Event Rentals on Oahu. Call, email, or visit our warehouse to plan your next event.",
 };
 
 export default function ContactPage() {
@@ -39,6 +40,18 @@ export default function ContactPage() {
         </section>
 
         <section className="max-w-[1100px] mx-auto px-6 sm:px-8 py-16">
+          <div className="text-center mb-10">
+            <p className="text-[12px] font-bold uppercase tracking-[0.25em]" style={{ color: "#ff6c0e" }}>
+              Rental Inquiry
+            </p>
+            <h2 className="mt-3 text-[#111] font-bold leading-[1.1]" style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
+              Let&apos;s discuss your upcoming event<span style={{ color: "#ff6c0e" }}>.</span>
+            </h2>
+          </div>
+          <RentalInquiryForm />
+        </section>
+
+        <section className="max-w-[1100px] mx-auto px-6 sm:px-8 pb-16">
           <div className="grid md:grid-cols-3 gap-8">
             <div className="rounded-2xl bg-white border border-[#e5e5e5] p-8 text-center">
               <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#999]">Call</p>
@@ -48,7 +61,7 @@ export default function ContactPage() {
               >
                 {SITE.phone}
               </a>
-              <p className="mt-2 text-[13px] text-[#666]">Mon–Fri · 8am–5pm HST</p>
+              <p className="mt-2 text-[13px] text-[#666]">Mon–Fri · 8am–4pm HST</p>
             </div>
 
             <div className="rounded-2xl bg-white border border-[#e5e5e5] p-8 text-center">
@@ -77,39 +90,55 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <section className="max-w-[1100px] mx-auto px-6 sm:px-8 pb-16">
-          <h2 className="text-center text-[#111] font-bold leading-[1.1]"
-              style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
-            Visit a showroom<span style={{ color: "#ff6c0e" }}>.</span>
-          </h2>
-          <div className="mt-10 grid md:grid-cols-2 gap-6">
+        <section>
+          <div className="max-w-[1100px] mx-auto px-6 sm:px-8">
+            <h2 className="text-center text-[#111] font-bold leading-[1.1]"
+                style={{ fontSize: "clamp(28px, 4vw, 44px)" }}>
+              Visit a showroom<span style={{ color: "#ff6c0e" }}>.</span>
+            </h2>
+          </div>
+          <div className="mt-10 flex flex-col">
             {SITE.locations.map((loc) => (
-              <div key={loc.name} className="rounded-2xl border border-[#e5e5e5] bg-white p-8">
-                <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#999]">
-                  {loc.island}
-                </p>
-                <h3 className="mt-1 text-[24px] font-bold text-[#111]">{loc.name}</h3>
-                <p className="mt-4 text-[14px] leading-[1.7] text-[#555] whitespace-pre-line">
+              <div
+                key={loc.name}
+                className="bg-white border-y border-[#e5e5e5] px-6 sm:px-12 lg:px-20 py-10 grid gap-6 md:grid-cols-3 md:items-center"
+              >
+                <div>
+                  <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#999]">
+                    {loc.island}
+                  </p>
+                  <h3 className="mt-1 text-[26px] font-bold text-[#111]">{loc.name}</h3>
+                </div>
+                <p className="text-[15px] leading-[1.7] text-[#555] whitespace-pre-line md:text-center">
                   {loc.address}
                 </p>
-                <p className="mt-3 text-[14px] text-[#555]">
-                  <a href={`tel:${loc.phone.replace(/\D/g, "")}`} className="hover:text-[#111]">
-                    {loc.phone}
-                  </a>
-                </p>
-                <p className="mt-2 text-[13px] text-[#888]">{loc.hours}</p>
+                <div className="md:text-right">
+                  <p className="text-[15px] text-[#555]">
+                    <a href={`tel:${loc.phone.replace(/\D/g, "")}`} className="hover:text-[#111]">
+                      {loc.phone}
+                    </a>
+                  </p>
+                  <div className="mt-2 text-[13px] text-[#888] leading-[1.6]">
+                    {loc.hours
+                      .split(" · ")
+                      .flatMap((seg) => seg.split(/:\s+/))
+                      .map((line) => (
+                        <p key={line} className="m-0">{line}</p>
+                      ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="max-w-[700px] mx-auto px-6 sm:px-8 text-center">
-          <div className="rounded-2xl bg-[#111] text-white p-10 sm:p-14">
-            <h2 className="font-bold leading-[1.1]"
+        <section className="bg-white border-b border-[#e5e5e5] text-center px-6 sm:px-12 lg:px-20 py-14 sm:py-20">
+          <div className="max-w-[700px] mx-auto">
+            <h2 className="font-bold leading-[1.1] text-[#111]"
                 style={{ fontSize: "clamp(24px, 3.5vw, 36px)" }}>
               Ready to start planning<span style={{ color: "#ff6c0e" }}>?</span>
             </h2>
-            <p className="mt-4 text-[15px] text-white/80 leading-[1.7]">
+            <p className="mt-4 text-[15px] text-[#555] leading-[1.7]">
               Shop our full rental catalog online, then reach out and a team
               member will follow up personally to confirm dates, availability,
               and the details.

@@ -32,7 +32,7 @@ export async function WelcomeSection() {
           }}
         >
           Welcome to Accel Event Rentals, your trusted source for inspired event
-          rentals across Oahu and Maui. From relaxed beachfront celebrations to
+          rentals across Oahu. From relaxed beachfront celebrations to
           grand island galas, our curated inventory offers everything from modern
           essentials to timeless tropical favorites. With a focus on service,
           creativity, and seamless execution, we&rsquo;re here to help bring

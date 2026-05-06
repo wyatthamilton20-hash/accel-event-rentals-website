@@ -5,7 +5,7 @@ const DEMO_REVIEWS: GoogleReview[] = [
     authorName: "Sarah K.",
     rating: 5,
     relativeTime: "2 weeks ago",
-    text: "Accel made our Maui wedding absolutely magical! The lounge furniture and tent setup were beyond what we imagined. Their team was professional, on time, and handled every detail. We got so many compliments from our guests. Highly recommend for any event in Hawaii!",
+    text: "Accel made our Oahu wedding absolutely magical! The lounge furniture and tent setup were beyond what we imagined. Their team was professional, on time, and handled every detail. We got so many compliments from our guests. Highly recommend for any event in Hawaii!",
     publishTime: "2026-04-01T00:00:00Z",
   },
   {
@@ -31,9 +31,9 @@ const DEMO_REVIEWS: GoogleReview[] = [
   },
   {
     authorName: "Tina W.",
-    rating: 4,
+    rating: 5,
     relativeTime: "3 months ago",
-    text: "Beautiful rental pieces and great customer service. The sailcloth tent was the highlight of our beach birthday party. Only reason for 4 stars is I wish they had more color options for linens, but overall a wonderful experience.",
+    text: "Beautiful rental pieces and great customer service. The sailcloth tent was the highlight of our beach birthday party. Guests are still talking about it. The team was easy to work with from start to finish.",
     publishTime: "2026-01-15T00:00:00Z",
   },
 ];
@@ -41,8 +41,8 @@ const DEMO_REVIEWS: GoogleReview[] = [
 function getDemoReviews(): GooglePlaceReviewsResponse {
   return {
     reviews: DEMO_REVIEWS,
-    averageRating: 4.9,
-    totalReviews: 127,
+    averageRating: 4.6,
+    totalReviews: 100,
     placeId: "demo",
   };
 }
@@ -69,21 +69,23 @@ export async function fetchGoogleReviews(): Promise<GooglePlaceReviewsResponse> 
 
     const data = await res.json();
 
-    const reviews: GoogleReview[] = (data.reviews ?? []).map(
-      (r: {
-        authorAttribution?: { displayName?: string };
-        rating?: number;
-        relativePublishTimeDescription?: string;
-        text?: { text?: string };
-        publishTime?: string;
-      }) => ({
-        authorName: r.authorAttribution?.displayName ?? "Anonymous",
-        rating: r.rating ?? 5,
-        relativeTime: r.relativePublishTimeDescription ?? "",
-        text: r.text?.text ?? "",
-        publishTime: r.publishTime ?? "",
-      }),
-    );
+    const reviews: GoogleReview[] = (data.reviews ?? [])
+      .map(
+        (r: {
+          authorAttribution?: { displayName?: string };
+          rating?: number;
+          relativePublishTimeDescription?: string;
+          text?: { text?: string };
+          publishTime?: string;
+        }) => ({
+          authorName: r.authorAttribution?.displayName ?? "Anonymous",
+          rating: r.rating ?? 5,
+          relativeTime: r.relativePublishTimeDescription ?? "",
+          text: r.text?.text ?? "",
+          publishTime: r.publishTime ?? "",
+        }),
+      )
+      .filter((r: GoogleReview) => r.rating === 5);
 
     return {
       reviews,

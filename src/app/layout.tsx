@@ -13,7 +13,7 @@ const poppins = Poppins({
 
 const title = "Accel Event Rentals | Hawaii's Go-To Event Rental Company";
 const description =
-  "Hawaii's top event rental company! Accel Event Rentals offers premium tents, lounge furniture & rentals for weddings, corporate events & more on Oahu & Maui";
+  "Hawaii's top event rental company! Accel Event Rentals offers premium tents, lounge furniture & rentals for weddings, corporate events & more on Oahu";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   keywords: [
     "Hawaii event rentals",
     "Oahu event rentals",
-    "Maui event rentals",
     "wedding rentals Hawaii",
     "tent rentals",
     "tabletop rentals",
@@ -52,12 +51,6 @@ export const metadata: Metadata = {
         alt: "Accel Event Rentals",
       },
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: ["/images/hero/1.jpg"],
   },
   robots: {
     index: true,
