@@ -230,6 +230,7 @@ export async function createContact(
 
 export interface OpportunityInput {
   memberId: number;
+  contactMemberId: number;
   billingAddressId: number;
   subject: string;
   startsAt: string; // ISO datetime
@@ -244,6 +245,11 @@ export interface OpportunityInput {
   tellUsAboutEvent: string;
 }
 
+// state values observed in Accel's RMS: 0=Enquiry, 1=Draft, 2=Reservation,
+// 3=Booking. Live web-form opps land at state=1 (Draft) every time —
+// without setting this, RMS defaults new opps to Enquiry.
+export const OPP_STATE_DRAFT = 1;
+
 export async function createOpportunity(
   input: OpportunityInput
 ): Promise<{ id: number }> {
@@ -255,6 +261,17 @@ export async function createOpportunity(
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       owned_by: DEFAULT_OWNER_ID,
+      // Match WordPress: opps start at state=1 (Draft), not the RMS
+      // default of 0 (Enquiry). Verified across 8/8 untouched web-form opps.
+      state: OPP_STATE_DRAFT,
+      // Explicit participants array prevents RMS from auto-adding the
+      // owned_by user as a participant. Live web-form opps have exactly
+      // [Org, Contact] — both with the customer's name. Verified across
+      // 8/8 untouched web-form opps.
+      participants_attributes: [
+        { member_id: input.memberId },
+        { member_id: input.contactMemberId },
+      ],
       custom_fields: {
         which_fits_you_best: input.whichFitsYouBest,
         venue_type: input.venueType,

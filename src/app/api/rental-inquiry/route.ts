@@ -258,8 +258,15 @@ function buildPayloads(d: InquiryPayload) {
     // memberId = Organisation id (NOT contact id). Live opp 19157 has
     // member_id = Org id; the Contact appears in the participants array.
     // billingAddressId = the Org's primary_address id.
-    opportunity: (memberId: number, billingAddressId: number) => ({
+    // contactMemberId is plumbed through so we can include it in the
+    // explicit participants array.
+    opportunity: (
+      memberId: number,
+      contactMemberId: number,
+      billingAddressId: number
+    ) => ({
       memberId,
+      contactMemberId,
       billingAddressId,
       subject,
       startsAt: `${d.eventDate}T09:00:00.000Z`,
@@ -359,7 +366,7 @@ export async function POST(request: Request) {
 
   try {
     const opp = await createOpportunity(
-      payloads.opportunity(orgId, orgAddressId)
+      payloads.opportunity(orgId, contactId, orgAddressId)
     );
     console.log(
       `[rental-inquiry] success org=${orgId} contact=${contactId} opp=${opp.id}`
