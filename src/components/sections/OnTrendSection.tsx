@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { CATEGORIES } from "@/lib/category-map";
-import { SITE, shopCategoryUrl } from "@/lib/site-config";
+import { shopCategoryUrl } from "@/lib/site-config";
 
 export function OnTrendSection() {
   return (
@@ -13,14 +13,14 @@ export function OnTrendSection() {
             Browse Our Rentals<span style={{ color: "#ff6c0e" }}>.</span>
           </h2>
           <p className="mt-3 text-[15px] text-[#555] max-w-[500px] mx-auto">
-            Tap a category to shop on{" "}
+            Tap a category to shop on our{" "}
             <a
-              href={SITE.shopUrl}
+              href={shopCategoryUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-[#111] underline-offset-4 hover:underline hover:text-[#ff6c0e] transition-colors"
             >
-              shop.accelrentals.com
+              ecommerce store
             </a>
             .
           </p>
