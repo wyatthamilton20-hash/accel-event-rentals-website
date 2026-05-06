@@ -116,7 +116,12 @@ export async function createOrganisation(input: OrgInput): Promise<{ id: number 
       name: input.name,
       membership_type: "Organisation",
       lawful_basis_type_id: LAWFUL_BASIS_PROSPECT,
-      owned_by: DEFAULT_OWNER_ID,
+      // RMS rejects with `membership.owned_by: can't be blank` if this
+      // is missing or placed at the top-level. Live web-form Org records
+      // (member 30985) show owned_by nested inside the membership object.
+      membership: {
+        owned_by: DEFAULT_OWNER_ID,
+      },
       custom_fields: {
         customer_type: input.customerTypeId,
       },
@@ -151,7 +156,9 @@ export async function createContact(
       membership_type: "Contact",
       membership_id: input.organisationId,
       lawful_basis_type_id: LAWFUL_BASIS_PROSPECT,
-      owned_by: DEFAULT_OWNER_ID,
+      // No owned_by on Contact — live data (member 30984) shows the
+      // Contact's membership object holds only {id, title, department}.
+      // Ownership lives on the parent Organisation.
       emails: [{ address: input.email, type_id: EMAIL_TYPE_WORK }],
       phones: [{ number: input.phone, type_id: PHONE_TYPE_WORK }],
       addresses: [
