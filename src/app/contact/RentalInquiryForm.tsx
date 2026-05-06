@@ -97,6 +97,7 @@ export function RentalInquiryForm() {
   }
 
   function validateStep2(): string {
+    if (!data.eventType) return "Please choose an event type.";
     if (!data.eventDate) return "Please choose your event date.";
     if (!/^\d+$/.test(data.attendees) || Number(data.attendees) < 1) return "Please enter the number of attendees.";
     if (!data.island) return "Please choose an island.";
@@ -308,6 +309,19 @@ export function RentalInquiryForm() {
 
       {step === 2 && (
         <div className="mt-8 grid gap-6">
+          <RadioGroup
+            label="Event Type"
+            name="eventType"
+            value={data.eventType}
+            options={[
+              { value: "wedding", label: "Wedding" },
+              { value: "corporate", label: "Corporate" },
+              { value: "fundraiser", label: "Fundraiser" },
+              { value: "party", label: "Party" },
+            ]}
+            onChange={(v) => update("eventType", v as FormData["eventType"])}
+          />
+
           <div className="grid sm:grid-cols-2 gap-4">
             <Field label="Date of Event">
               <input

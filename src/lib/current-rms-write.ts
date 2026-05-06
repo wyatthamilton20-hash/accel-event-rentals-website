@@ -42,24 +42,67 @@ export const OPT_USED_BEFORE_NO = 1000064;
 // Picklist option ID — list 1000002 "Customer Type" (default for inquiries)
 export const OPT_CUSTOMER_TYPE_DIRECT_END_CLIENT = 1000066;
 
+// RMS user assigned as record owner on every inquiry. The existing
+// WordPress form on accelrentals.com has assigned 100% of untouched
+// web-form records to user 1 (Jake McCool). Staff reassign manually
+// afterward. Verified across 19/19 untouched web-form opps.
+export const DEFAULT_OWNER_ID = 1;
+
+// Picklist defaults the WordPress form sends on every Opportunity.
+// Both are the picklist's default value — RMS may auto-default these,
+// but mirroring WordPress eliminates any chance of divergence.
+//   "Active Draft" -> "No"        (list 1000012 default)
+//   "GPA Score"    -> "0.0 : N/A" (list 1000011 default — staff grade later)
+export const OPP_ACTIVE_DRAFT_DEFAULT = 1000085;
+export const OPP_GPA_SCORE_DEFAULT = 1000079;
+
 async function crmsPost<T>(endpoint: string, body: unknown): Promise<T> {
   if (!SUBDOMAIN || !API_KEY) {
     throw new Error("Current RMS credentials not configured");
   }
-  const res = await fetch(`${BASE_URL}/${endpoint}`, {
-    method: "POST",
-    headers: {
-      "X-SUBDOMAIN": SUBDOMAIN,
-      "X-AUTH-TOKEN": API_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
+  if (process.env.RENTAL_INQUIRY_DRY_RUN === "1") {
+    console.log(
+      `[crms-dry-run] POST ${endpoint}\n${JSON.stringify(body, null, 2)}`
+    );
+    if (endpoint === "members") {
+      return { member: { id: 999, primary_address: { id: 999 } } } as T;
+    }
+    if (endpoint === "opportunities") {
+      return { opportunity: { id: 999 } } as T;
+    }
+    return {} as T;
+  }
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "X-SUBDOMAIN": SUBDOMAIN,
+        "X-AUTH-TOKEN": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[crms] kind=network endpoint=${endpoint}`);
+    console.error(`[crms] err=${msg.slice(0, 300)}`);
+    throw new Error(`Current RMS network error on ${endpoint}: ${msg}`);
+  }
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    console.error(`[crms] kind=http endpoint=${endpoint} status=${res.status}`);
+    console.error(`[crms] body=${text.slice(0, 300)}`);
     throw new Error(`Current RMS POST ${endpoint} -> ${res.status}: ${text.slice(0, 500)}`);
   }
-  return res.json();
+  try {
+    return (await res.json()) as T;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[crms] kind=parse endpoint=${endpoint}`);
+    console.error(`[crms] err=${msg.slice(0, 300)}`);
+    throw new Error(`Current RMS returned non-JSON response from ${endpoint}`);
+  }
 }
 
 export interface OrgInput {
@@ -73,6 +116,7 @@ export async function createOrganisation(input: OrgInput): Promise<{ id: number 
       name: input.name,
       membership_type: "Organisation",
       lawful_basis_type_id: LAWFUL_BASIS_PROSPECT,
+      owned_by: DEFAULT_OWNER_ID,
       custom_fields: {
         customer_type: input.customerTypeId,
       },
@@ -107,6 +151,7 @@ export async function createContact(
       membership_type: "Contact",
       membership_id: input.organisationId,
       lawful_basis_type_id: LAWFUL_BASIS_PROSPECT,
+      owned_by: DEFAULT_OWNER_ID,
       emails: [{ address: input.email, type_id: EMAIL_TYPE_WORK }],
       phones: [{ number: input.phone, type_id: PHONE_TYPE_WORK }],
       addresses: [
@@ -166,6 +211,7 @@ export async function createOpportunity(
       subject: input.subject,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
+      owned_by: DEFAULT_OWNER_ID,
       custom_fields: {
         which_fits_you_best: input.whichFitsYouBest,
         venue_type: input.venueType,
@@ -173,6 +219,8 @@ export async function createOpportunity(
         number_of_attendees: input.numberOfAttendees,
         have_you_used_our_services_before: input.haveUsedBefore,
         tell_us_about_the_event_you_are_having: input.tellUsAboutEvent,
+        active_draft: OPP_ACTIVE_DRAFT_DEFAULT,
+        gpa_score: OPP_GPA_SCORE_DEFAULT,
       },
     },
   };

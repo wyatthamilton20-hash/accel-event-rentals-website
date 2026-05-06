@@ -21,9 +21,9 @@ import {
  *
  * Performs three sequential Current RMS writes (Organisation -> Contact ->
  * Opportunity). All env-gated; if creds are missing, returns 503. If
- * RENTAL_INQUIRY_DRY_RUN=1, logs the payloads and returns success without
- * writing — used during local dev so we never pollute the production CRM
- * with test submissions.
+ * RENTAL_INQUIRY_DRY_RUN=1, the crmsPost helper logs the exact RMS body for
+ * each call and returns synthetic success — so we can verify payloads
+ * locally without polluting the CRM with test submissions.
  *
  * Anti-spam:
  *   - hidden honeypot field "_hp_company_url" must be empty
@@ -64,7 +64,7 @@ interface InquiryPayload {
   companyName?: string;
   companyCountryId?: number;
   companyState?: string;
-  eventType?: EventType;
+  eventType: EventType;
   eventDate: string; // YYYY-MM-DD
   attendees: string;
   island: string;
@@ -134,17 +134,15 @@ function parseAndValidate(body: unknown):
     }
   }
 
-  // eventType is no longer collected by the form; accept missing or one of
-  // the legacy values for forward compat.
-  let eventType: EventType | undefined;
   if (
-    b.eventType === "wedding" ||
-    b.eventType === "corporate" ||
-    b.eventType === "fundraiser" ||
-    b.eventType === "party"
+    b.eventType !== "wedding" &&
+    b.eventType !== "corporate" &&
+    b.eventType !== "fundraiser" &&
+    b.eventType !== "party"
   ) {
-    eventType = b.eventType;
+    return { ok: false, status: 400, error: "Please choose an event type" };
   }
+  const eventType: EventType = b.eventType;
   if (!isString(b.eventDate, 20) || !/^\d{4}-\d{2}-\d{2}$/.test(b.eventDate as string)) {
     return { ok: false, status: 400, error: "Please choose an event date" };
   }
@@ -264,9 +262,7 @@ function buildPayloads(d: InquiryPayload) {
       // venue_type is Private-only; Pro Planner submissions leave it null,
       // matching the live form (verified in RMS opp #19157).
       venueType: d.venue ? VENUE_TO_RMS[d.venue] : null,
-      // Event Type is no longer collected on our form (per design decision).
-      // Live RMS data shows event_type: null is a valid value (opp #19157).
-      eventType: d.eventType ? EVENT_TO_RMS[d.eventType] : null,
+      eventType: EVENT_TO_RMS[d.eventType],
       numberOfAttendees: d.attendees,
       haveUsedBefore:
         d.usedBefore === "yes" ? OPT_USED_BEFORE_YES : OPT_USED_BEFORE_NO,
@@ -281,6 +277,7 @@ export async function POST(request: Request) {
     request.headers.get("x-real-ip") ||
     "unknown";
   if (rateLimited(ip)) {
+    console.warn(`[rental-inquiry] kind=rate-limit ip=${ip}`);
     return NextResponse.json(
       { ok: false, error: "Too many requests. Try again shortly." },
       { status: 429 }
@@ -291,15 +288,17 @@ export async function POST(request: Request) {
   try {
     body = await request.json();
   } catch {
+    console.warn(`[rental-inquiry] kind=bad-json ip=${ip}`);
     return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
   }
 
   const parsed = parseAndValidate(body);
   if (!parsed.ok) {
     if (parsed.error === "honeypot") {
-      console.warn("[rental-inquiry] honeypot tripped from", ip);
+      console.warn(`[rental-inquiry] kind=honeypot ip=${ip}`);
       return NextResponse.json({ ok: true });
     }
+    console.warn(`[rental-inquiry] kind=validation reason="${parsed.error}"`);
     return NextResponse.json(
       { ok: false, error: parsed.error },
       { status: parsed.status }
@@ -307,7 +306,7 @@ export async function POST(request: Request) {
   }
 
   if (!process.env.CURRENT_RMS_SUBDOMAIN || !process.env.CURRENT_RMS_API_KEY) {
-    console.warn("[rental-inquiry] Current RMS env vars not configured");
+    console.warn(`[rental-inquiry] kind=missing-creds`);
     return NextResponse.json(
       {
         ok: false,
@@ -320,22 +319,6 @@ export async function POST(request: Request) {
 
   const payloads = buildPayloads(parsed.data);
 
-  if (process.env.RENTAL_INQUIRY_DRY_RUN === "1") {
-    console.log(
-      "[rental-inquiry] DRY RUN — not writing to RMS. Payloads:",
-      JSON.stringify(
-        {
-          org: payloads.org,
-          contact: payloads.contact(0),
-          opportunity: payloads.opportunity(0, 0),
-        },
-        null,
-        2
-      )
-    );
-    return NextResponse.json({ ok: true, dryRun: true });
-  }
-
   let orgId: number | null = null;
   let contactId: number | null = null;
   let primaryAddressId: number | null = null;
@@ -344,7 +327,9 @@ export async function POST(request: Request) {
     const org = await createOrganisation(payloads.org);
     orgId = org.id;
   } catch (err) {
-    console.error("[rental-inquiry] step 1 (organisation) failed:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[rental-inquiry] step=organisation FAIL`);
+    console.error(`[rental-inquiry] err=${msg.slice(0, 300)}`);
     return NextResponse.json(
       { ok: false, error: "Could not submit your inquiry. Please try again shortly." },
       { status: 502 }
@@ -356,10 +341,10 @@ export async function POST(request: Request) {
     contactId = contact.id;
     primaryAddressId = contact.primaryAddressId;
   } catch (err) {
-    console.error(
-      `[rental-inquiry] step 2 (contact) failed. Orphan org id=${orgId}. err:`,
-      err
-    );
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[rental-inquiry] step=contact FAIL`);
+    console.error(`[rental-inquiry] orphan org=${orgId}`);
+    console.error(`[rental-inquiry] err=${msg.slice(0, 300)}`);
     return NextResponse.json(
       { ok: false, error: "Could not submit your inquiry. Please try again shortly." },
       { status: 502 }
@@ -375,10 +360,10 @@ export async function POST(request: Request) {
     );
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error(
-      `[rental-inquiry] step 3 (opportunity) failed. Orphan org=${orgId} contact=${contactId}. err:`,
-      err
-    );
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[rental-inquiry] step=opportunity FAIL`);
+    console.error(`[rental-inquiry] orphan org=${orgId} contact=${contactId}`);
+    console.error(`[rental-inquiry] err=${msg.slice(0, 300)}`);
     return NextResponse.json(
       { ok: false, error: "Could not submit your inquiry. Please try again shortly." },
       { status: 502 }
