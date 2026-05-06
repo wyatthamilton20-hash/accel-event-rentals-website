@@ -161,17 +161,19 @@ export async function createContact(
       // Ownership lives on the parent Organisation.
       emails: [{ address: input.email, type_id: EMAIL_TYPE_WORK }],
       phones: [{ number: input.phone, type_id: PHONE_TYPE_WORK }],
-      addresses: [
-        {
-          name: input.address.name,
-          street: input.address.street,
-          city: input.address.city,
-          county: input.address.county,
-          postcode: input.address.postcode,
-          country_id: input.address.countryId,
-          type_id: ADDRESS_TYPE_PRIMARY,
-        },
-      ],
+      // The primary address goes on `primary_address` — the `addresses`
+      // array is for ADDITIONAL addresses only and rejects Primary type.
+      // Live web-form Contact (30984) shows primary_address populated and
+      // addresses=[]; mirror that.
+      primary_address: {
+        name: input.address.name,
+        street: input.address.street,
+        city: input.address.city,
+        county: input.address.county,
+        postcode: input.address.postcode,
+        country_id: input.address.countryId,
+        type_id: ADDRESS_TYPE_PRIMARY,
+      },
       custom_fields: {
         customer_type: input.customerTypeId,
       },
